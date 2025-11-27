@@ -3,8 +3,8 @@ ein asw Projekt
 
 
 # Initialisierung
-Mit *npm install* alle Abhängigkeiten installieren.
-Mit *npm run dev* wird ein Webserver gestartet und ein Localhost Link generiert.
+Mit **npm install** alle Abhängigkeiten installieren.
+Mit **npm run dev** wird ein Webserver gestartet und ein Localhost Link generiert.
 
 
 # Vue 3 + Vite
