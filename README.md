@@ -3,13 +3,13 @@ ein asw Projekt
 
 
 # Initialisierung
-In einem Ordner deiner Wahl das **Terminal öffnen** (*Netzlaufwerke* gehen *nicht*!)
-Zuerst mit **git clone https://github.com/umsername/Karrenkauf.git** Projekt downloaden
-Danach mit **cd Karrenkauf** in das Projektverzeichniss navigieren. 
+In einem Ordner deiner Wahl das **Terminal öffnen** (*Netzlaufwerke* gehen *nicht*!)<br/>
+Zuerst mit **git clone https://github.com/umsername/Karrenkauf.git** Projekt downloaden<br/>
+Danach mit **cd Karrenkauf** in das Projektverzeichniss navigieren. <br/>
 
-Einmal mit **npm install** alle Abhängigkeiten installieren.
-Mit **npm run dev** wird ein Webserver gestartet und ein Localhost Link generiert.
-Das muss jedes mal gemacht werden, wenn das Terminal geschlossen wird.
+Einmal mit **npm install** alle Abhängigkeiten installieren.<br/>
+Mit **npm run dev** wird ein Webserver gestartet und ein Localhost Link generiert.<br/>
+Das muss jedes mal gemacht werden, wenn das Terminal geschlossen wird.<br/>
 
 
 # Vue 3 + Vite
