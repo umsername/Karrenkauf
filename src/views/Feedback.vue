@@ -1,0 +1,6 @@
+<template>
+  <div class="page">
+    <h1>Feedback</h1>
+    <p>Inhalt folgt…</p>
+  </div>
+</template>

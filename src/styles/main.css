@@ -1,0 +1,477 @@
+/* ============================================================
+   THEME VARIABLES (LIGHT + DARK)
+============================================================ */
+:root {
+    --bg: #ebebeb;
+    --text: #222;
+
+    --card-bg: #ffffff;
+    --card-shadow: rgba(0, 0, 0, 0.06);
+
+    --nav-bg: #262626;
+    --nav-text: #ffffff;
+
+    --nav-btn-bg: #3b3b3b;
+    --nav-btn-hover: #4a4a4a;
+    --nav-btn-border: #555;
+
+    --border: #d4d4d4;
+
+    --table-header: #f4f4f4;
+    --table-hover: #f8f8f8;
+
+    --modal-bg: #ffffff;
+    --modal-backdrop: rgba(0,0,0,0.45);
+
+    --brand-bg1: #ffe6c7;
+    --brand-bg2: #ffd3a1;
+    --brand-border: #f3b684;
+    --brand-text: #3b2400;
+}
+
+:root.dark {
+    --bg: #121212;
+    --text: #ececec;
+
+    --card-bg: #1d1d1d;
+    --card-shadow: rgba(0, 0, 0, 0.35);
+
+    --nav-bg: #1a1a1a;
+    --nav-text: #eeeeee;
+
+    --nav-btn-bg: #2a2a2a;
+    --nav-btn-hover: #333;
+    --nav-btn-border: #444;
+
+    --border: #3b3b3b;
+
+    --table-header: #2a2a2a;
+    --table-hover: #1f1f1f;
+
+    --modal-bg: #1d1d1d;
+    --modal-backdrop: rgba(0,0,0,0.65);
+
+    --brand-bg1: #2c1c00;
+    --brand-bg2: #3a2400;
+    --brand-border: #5d3a00;
+    --brand-text: #ffddb0;
+}
+
+
+/* ============================================================
+   GLOBAL RESET
+============================================================ */
+html, body {
+    height: 100%;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Inter, Arial, sans-serif;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+}
+
+
+/* ============================================================
+   APP WRAPPER (für Sticky-Footer)
+============================================================ */
+.app-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+    width: min(1200px, 95%);
+    margin: 0 auto;
+    padding-top: 20px;
+}
+
+
+
+/* ============================================================
+   BRAND / LOGO BOX
+============================================================ */
+.brand-anchor {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    padding: 0 18px;
+    border-radius: 12px;
+
+    background: linear-gradient(135deg, var(--brand-bg1), var(--brand-bg2));
+    border: 1px solid var(--brand-border);
+
+    box-shadow: 0 3px 10px var(--card-shadow);
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.brand-anchor:visited {
+    color: inherit;
+}
+
+.brand-anchor:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px var(--card-shadow);
+}
+
+.brand-image {
+    height: 52px;
+    width: auto;
+    object-fit: contain;
+}
+
+.brand-title {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--brand-text);
+}
+
+
+
+/* ============================================================
+   NAVBAR
+============================================================ */
+.navbar {
+    width: 100%;
+    height: 70px;
+    background: var(--nav-bg);
+    color: var(--nav-text);
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 0 25px;
+    border-bottom: 1px solid var(--border);
+
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.nav-left,
+.nav-center,
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex: 1;
+}
+
+.nav-left  { justify-content: flex-start; }
+.nav-center { justify-content: center; }
+.nav-right { justify-content: flex-end; }
+
+.nav-btn {
+    background: var(--nav-btn-bg);
+    border: 1px solid var(--nav-btn-border);
+    color: var(--nav-text);
+
+    padding: 10px 14px;
+    border-radius: 10px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    cursor: pointer;
+    transition: 0.15s ease;
+}
+
+.nav-btn:hover {
+    background: var(--nav-btn-hover);
+}
+
+.nav-btn,
+.nav-btn * {
+    text-decoration: none !important;
+    border-bottom: none !important;
+}
+
+
+/* ============================================================
+   LIST OVERVIEW
+============================================================ */
+.list-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 25px;
+
+    margin: 40px;
+}
+
+.list-card {
+    flex: 1 1 calc(33.33% - 25px);
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+
+    box-shadow: 0 3px 10px var(--card-shadow);
+    overflow: hidden;
+
+    display: flex;
+    flex-direction: column;
+    transition: 0.2s ease;
+    cursor: pointer;
+}
+
+.list-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 16px var(--card-shadow);
+}
+
+.list-card-header {
+    padding: 16px 22px;
+    font-size: 1.35rem;
+    font-weight: 700;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.05);
+}
+
+.list-card-body {
+    padding: 16px 22px;
+}
+
+.preview-list {
+    margin-left: 18px;
+}
+
+
+
+/* ============================================================
+   EXPANDED LIST VIEW
+============================================================ */
+.expanded {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+
+    margin: 40px;
+    padding: 30px;
+
+    box-shadow: 0 4px 14px var(--card-shadow);
+}
+
+.expanded-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 20px;
+}
+
+.expanded-title {
+    font-size: 1.9rem;
+    font-weight: 700;
+    text-align: center;
+    flex: 1;
+}
+
+.header-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: var(--nav-btn-bg);
+    border: 1px solid var(--nav-btn-border);
+    color: var(--nav-text);
+    cursor: pointer;
+    transition: 0.15s ease;
+}
+
+.header-btn:hover {
+    background: var(--nav-btn-hover);
+}
+
+.header-btn.back { margin-right: auto; }
+.header-btn.export { margin-left: auto; }
+
+
+
+/* ============================================================
+   ITEM TABLE
+============================================================ */
+.item-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.item-table th {
+    padding: 12px;
+    background: var(--table-header);
+    border-bottom: 2px solid var(--border);
+}
+
+.item-table td {
+    padding: 10px;
+    border-bottom: 1px solid var(--border);
+}
+
+.item-table tr:hover {
+    background: var(--table-hover);
+}
+
+.table-add-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.table-add-btn {
+    padding: 10px 18px;
+    border-radius: 8px;
+    background: var(--nav-btn-bg);
+    border: 1px solid var(--nav-btn-border);
+    color: var(--nav-text);
+}
+
+
+
+/* ============================================================
+   MODAL
+============================================================ */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: var(--modal-backdrop);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal {
+    background: var(--modal-bg);
+    padding: 25px;
+    border-radius: 12px;
+    width: 360px;
+
+    box-shadow: 0 4px 16px var(--card-shadow);
+
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.modal input,
+.modal select {
+    padding: 10px;
+    border-radius: 6px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+}
+
+.modal button {
+    padding: 10px;
+    border-radius: 6px;
+    background: var(--nav-bg);
+    color: var(--nav-text);
+}
+
+.modal button.cancel {
+    background: #888;
+}
+
+
+
+/* ============================================================
+   FOOTER (Sticky Footer)
+============================================================ */
+.footer {
+    width: 100%;
+    background: var(--nav-bg);
+    color: var(--nav-text);
+    padding: 18px 0;
+    border-top: 1px solid var(--border);
+
+    margin-top: auto; /* KEY: sticky footer */
+}
+
+.footer-content {
+    width: min(1200px, 90%);
+    margin: 0 auto;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.footer-links {
+    display: flex;
+    gap: 20px;
+}
+
+.footer-links a {
+    color: var(--nav-text);
+    text-decoration: none;
+    transition: 0.2s ease;
+    font-weight: 500;
+}
+
+.footer-links a:hover {
+    color: #facc7d;
+}
+
+/* ============================================================
+   GENERIC PAGE LAYOUT (for all router views)
+============================================================ */
+.page {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 40px;
+    margin: 40px auto;
+    width: min(1100px, 95%);
+    box-shadow: 0 3px 10px var(--card-shadow);
+}
+
+.page h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.page p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.page pre {
+    padding: 20px;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: monospace;
+    font-size: 1rem;
+}
+
+
+/* ============================================================
+   RESPONSIVE
+============================================================ */
+@media (max-width: 900px) {
+    .list-card {
+        flex: 1 1 calc(50% - 25px);
+    }
+}
+
+@media (max-width: 600px) {
+    .list-card {
+        flex: 1 1 100%;
+    }
+}
