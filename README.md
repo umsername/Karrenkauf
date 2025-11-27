@@ -1,2 +1,0 @@
-# Karenkauf
-ein asw Projekt
