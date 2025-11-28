@@ -13,10 +13,15 @@ const selectedUnit = ref('')
 const beschreibung = ref('')
 const category = ref('')
 const lists = computed(() => DS.getData().lists)
+const isMobileMenuOpen = ref(false)
 
 const unitLabel = value => {
   const found = unitsData.units.find(u => u.value === value)
   return found ? found.label : value
+}
+
+function toggleMobileMenu() {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
 
 function resetToOverview() {
@@ -60,6 +65,14 @@ function handleAddItem() {
   showAddDialog.value = false
 }
 
+function removeItem(item) {
+  DS.deleteItem(expandedListId.value, item.id);
+}
+
+function toggleChecked(item) {
+  DS.updateItem(expandedListId.value, item.id, { checked: !item.checked });
+}
+
 function exportSingleList(id) {
   const list = lists.value[id]
   if (!list) return
@@ -96,8 +109,8 @@ function formatPrice(value) {
 
       <div class="list-card-body">
         <ul class="preview-list">
-          <li v-for="item in preview(list)" :key="item.id">
-            • {{ item.name }} — {{ item.menge }} {{ unitLabel(item.unit) }}
+          <li v-for="item in preview(list)" :key="item.id" :class="{ 'checked-item': item.checked }">
+            <span>• {{ item.name }} — {{ item.menge }} {{ unitLabel(item.unit) }}</span>
           </li>
         </ul>
 
@@ -113,29 +126,37 @@ function formatPrice(value) {
       <button class="header-btn export" @click="exportSingleList(expandedListId)">⬇️ Liste exportieren</button>
     </div>
 
-    <table class="item-table">
-      <thead>
-      <tr>
-        <th>Name</th>
-        <th>Menge</th>
-        <th>Einheit</th>
-        <th>Preis</th>
-        <th>Kategorie</th>
-        <th>Beschreibung</th>
-      </tr>
-      </thead>
+    <div class="table-container">
+      <table class="item-table">
+        <thead>
+        <tr>
+          <th class="col-check">&nbsp;</th>
+          <th>Name</th>
+          <th>Menge</th>
+          <th>Einheit</th>
+          <th>Preis</th>
+          <th>Kategorie</th>
+          <th>Beschreibung</th>
+          <th class="col-delete">&nbsp;</th>
+        </tr>
+        </thead>
 
-      <tbody>
-      <tr v-for="item in lists[expandedListId].items" :key="item.id">
-        <td>{{ item.name }}</td>
-        <td>{{ item.menge }}</td>
-        <td>{{ unitLabel(item.unit) }}</td>
-        <td>{{ formatPrice(item.preis) }}</td>
-        <td>{{ item.category }}</td>
-        <td>{{ item.beschreibung }}</td>
-      </tr>
-      </tbody>
-    </table>
+        <tbody>
+        <tr v-for="item in lists[expandedListId].items" :key="item.id" :class="{ checked: item.checked }">
+          <td>
+            <button class="tbl-btn check" @click.stop="toggleChecked(item)">✔</button>
+          </td>
+          <td>{{ item.name }}</td>
+          <td>{{ item.menge }}</td>
+          <td>{{ unitLabel(item.unit) }}</td>
+          <td>{{ formatPrice(item.preis) }}</td>
+          <td>{{ item.category }}</td>
+          <td>{{ item.beschreibung }}</td>
+          <td><button class="tbl-btn delete" @click.stop="removeItem(item)">🗑</button></td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div class="table-add-container">
       <button class="table-add-btn" @click="showAddDialog = true">➕ Neues Item</button>

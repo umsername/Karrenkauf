@@ -4,11 +4,11 @@ import * as DS from '@/store/dataStore.js'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-
 const darkMode = ref(false)
 const showCreateList = ref(false)
 const newListName = ref('')
 const importInput = ref(null)
+const isMobileMenuOpen = ref(false)
 
 function goToHome() {
   router.push('/')
@@ -54,28 +54,27 @@ onMounted(() => {
 <template>
   <nav class="navbar">
 
-    <!-- LOGO (Jetzt richtig) -->
     <div class="brand-anchor" @click="goToHome">
       <img src="/src/assets/images/karrenkauf.jfif" class="brand-image" />
       <span class="brand-title">Karrenkauf</span>
     </div>
 
-    <!-- CENTER -->
     <div class="nav-center">
       <button class="nav-btn" @click="showCreateList = true">➕ Neue Liste</button>
       <button class="nav-btn" @click="triggerImport">⬆️ Import</button>
       <button class="nav-btn" @click="triggerExport">⬇️ Export</button>
     </div>
 
-    <!-- RIGHT -->
     <div class="nav-right">
-      <button class="nav-btn" @click="toggleDarkMode">🌙 Darkmode</button>
+      <button class="nav-btn" @click="toggleDarkMode">
+        <span v-if="darkMode">☀️ Lightmode</span>
+        <span v-else>🌙 Darkmode</span>
+      </button>
       <router-link to="/profile" class="nav-btn">👤 Profil</router-link>
     </div>
 
     <input ref="importInput" type="file" hidden @change="handleImport" />
 
-    <!-- MODAL -->
     <div v-if="showCreateList" class="modal-backdrop" @click.self="showCreateList = false">
       <div class="modal">
         <h2>Neue Einkaufsliste</h2>
@@ -86,5 +85,3 @@ onMounted(() => {
     </div>
   </nav>
 </template>
-
-<style scoped></style>

@@ -1,6 +1,9 @@
 // später in anderen Projekten importieren mit -- import { createList } from "./dataStore.js";
 // Mithilfe von export function -- können wir die Funktionen in anderen Dateien importieren und verwenden
+import { reactive } from "vue"
 
+let data = reactive({ lists: {} })
+loadData()
 
 // --UTILS--
 // Liefert eine UUID 
@@ -15,7 +18,6 @@ export function nowMs() {
 
 
 // legt leeres data Objekt an oder lädt bestehendes
-let data = { lists: {} };
 loadData();
 
 // Neue Liste erstellen
@@ -51,6 +53,7 @@ export function createItem(name, beschreibung, menge, unit, preis, category) {
         preis,
         done: false,
         category,
+        checked:false,
         createdAt: timestamp,
         updatedAt: timestamp
     };
@@ -67,9 +70,6 @@ export function addItemToList(listId, item) {
 export function addItemsToList(listId, itemsArray) {
     itemsArray.forEach(item => addItemToList(listId, item));
 }
-
-
-
 
 // CRUD Operationen - Create Read Update Delete
 
@@ -107,16 +107,14 @@ export function deleteItem(listId, itemId) {
 // Daten aus dem localStorage laden
 export function loadData() {
     const raw = localStorage.getItem("shoppingData");
-    if (!raw) {
-        data = { lists: {} };
-        return;
-    }
+    if (!raw) return
 
     try {
-        data = JSON.parse(raw);
+        const parsed = JSON.parse(raw)
+        data.lists = parsed.lists || {}
     } catch (e) {
-        console.error("Fehler beim Laden:", e);
-        data = { lists: {} };
+        console.error("Fehler beim Laden:", e)
+        data.lists = {}
     }
 }
 

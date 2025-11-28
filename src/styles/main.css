@@ -104,16 +104,14 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-
     padding: 0 18px;
     border-radius: 12px;
-
     background: linear-gradient(135deg, var(--brand-bg1), var(--brand-bg2));
     border: 1px solid var(--brand-border);
-
     box-shadow: 0 3px 10px var(--card-shadow);
     cursor: pointer;
     transition: 0.2s ease;
+    text-decoration: none;
 }
 
 .brand-anchor:visited {
@@ -147,14 +145,11 @@ body {
     height: 70px;
     background: var(--nav-bg);
     color: var(--nav-text);
-
     display: flex;
     justify-content: space-between;
     align-items: center;
-
     padding: 0 25px;
     border-bottom: 1px solid var(--border);
-
     position: sticky;
     top: 0;
     z-index: 100;
@@ -177,26 +172,18 @@ body {
     background: var(--nav-btn-bg);
     border: 1px solid var(--nav-btn-border);
     color: var(--nav-text);
-
     padding: 10px 14px;
     border-radius: 10px;
-
     display: flex;
     align-items: center;
     gap: 8px;
-
     cursor: pointer;
     transition: 0.15s ease;
+    text-decoration: none;
 }
 
 .nav-btn:hover {
     background: var(--nav-btn-hover);
-}
-
-.nav-btn,
-.nav-btn * {
-    text-decoration: none !important;
-    border-bottom: none !important;
 }
 
 
@@ -208,8 +195,7 @@ body {
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 25px;
-
-    margin: 40px;
+    margin: 40px 0;
 }
 
 .list-card {
@@ -217,10 +203,8 @@ body {
     background: var(--card-bg);
     border: 2px solid var(--border);
     border-radius: 14px;
-
     box-shadow: 0 3px 10px var(--card-shadow);
     overflow: hidden;
-
     display: flex;
     flex-direction: column;
     transition: 0.2s ease;
@@ -237,7 +221,6 @@ body {
     font-size: 1.35rem;
     font-weight: 700;
     border-bottom: 1px solid var(--border);
-    background: rgba(255,255,255,0.05);
 }
 
 .list-card-body {
@@ -245,9 +228,15 @@ body {
 }
 
 .preview-list {
-    margin-left: 18px;
+    list-style-type: none;
+    padding-left: 0;
 }
 
+.preview-list .checked-item span {
+    text-decoration: line-through;
+    opacity: 0.6;
+    transition: 0.2s ease;
+}
 
 
 /* ============================================================
@@ -257,10 +246,8 @@ body {
     background: var(--card-bg);
     border: 2px solid var(--border);
     border-radius: 14px;
-
-    margin: 40px;
+    margin: 40px 0;
     padding: 30px;
-
     box-shadow: 0 4px 14px var(--card-shadow);
 }
 
@@ -268,7 +255,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-
     padding-bottom: 12px;
     border-bottom: 2px solid var(--border);
     margin-bottom: 20px;
@@ -301,27 +287,73 @@ body {
 
 
 /* ============================================================
-   ITEM TABLE
+   ITEM TABLE (OPTIMIZED FOR ALIGNMENT)
 ============================================================ */
 .item-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
+    table-layout: fixed;
+}
+
+.item-table th,
+.item-table td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    vertical-align: middle;
 }
 
 .item-table th {
-    padding: 12px;
     background: var(--table-header);
-    border-bottom: 2px solid var(--border);
-}
-
-.item-table td {
-    padding: 10px;
-    border-bottom: 1px solid var(--border);
+    border-bottom-width: 2px;
 }
 
 .item-table tr:hover {
     background: var(--table-hover);
+}
+
+.col-check { width: 60px; }
+.col-delete { width: 60px; }
+
+.item-table th.col-check,
+.item-table td:first-child,
+.item-table th.col-delete,
+.item-table td:last-child {
+    text-align: center;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.checked td {
+    text-decoration: line-through;
+    opacity: 0.55;
+    transition: 0.2s ease;
+}
+
+.tbl-btn {
+    background: var(--nav-btn-bg);
+    border: 1px solid var(--nav-btn-border);
+    color: var(--nav-text);
+    padding: 4px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: 0.15s ease-in-out;
+}
+
+.tbl-btn:hover {
+    background: var(--nav-btn-hover);
+}
+
+.tbl-btn.delete {
+    color: #ff6b6b;
+}
+
+.checked .tbl-btn.check {
+    background: #2e7d32 !important;
+    border-color: #1b5e20 !important;
+    color: white;
 }
 
 .table-add-container {
@@ -331,13 +363,23 @@ body {
 }
 
 .table-add-btn {
-    padding: 10px 18px;
-    border-radius: 8px;
     background: var(--nav-btn-bg);
     border: 1px solid var(--nav-btn-border);
     color: var(--nav-text);
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.15s ease;
+    font-size: 1rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
+.table-add-btn:hover {
+    background: var(--nav-btn-hover);
+}
 
 
 /* ============================================================
@@ -350,16 +392,15 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 200;
 }
 
 .modal {
     background: var(--modal-bg);
     padding: 25px;
     border-radius: 12px;
-    width: 360px;
-
+    width: min(360px, 90%);
     box-shadow: 0 4px 16px var(--card-shadow);
-
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -369,7 +410,7 @@ body {
 .modal select {
     padding: 10px;
     border-radius: 6px;
-    background: var(--card-bg);
+    background: var(--bg);
     border: 1px solid var(--border);
     color: var(--text);
 }
@@ -379,6 +420,8 @@ body {
     border-radius: 6px;
     background: var(--nav-bg);
     color: var(--nav-text);
+    border: none;
+    cursor: pointer;
 }
 
 .modal button.cancel {
@@ -396,14 +439,12 @@ body {
     color: var(--nav-text);
     padding: 18px 0;
     border-top: 1px solid var(--border);
-
-    margin-top: auto; /* KEY: sticky footer */
+    margin-top: auto;
 }
 
 .footer-content {
     width: min(1200px, 90%);
     margin: 0 auto;
-
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -453,7 +494,7 @@ body {
 
 .page pre {
     padding: 20px;
-    background: var(--card-bg);
+    background: var(--bg);
     border: 1px solid var(--border);
     border-radius: 10px;
     font-family: monospace;
@@ -462,16 +503,76 @@ body {
 
 
 /* ============================================================
-   RESPONSIVE
+   RESPONSIVE (MOBILE-FRIENDLY)
 ============================================================ */
+
+/* Für Tablets und kleinere Geräte */
 @media (max-width: 900px) {
     .list-card {
         flex: 1 1 calc(50% - 25px);
     }
 }
 
+/* Für die meisten mobilen Geräte */
+@media (max-width: 768px) {
+    /* --- NAVBAR --- */
+    .navbar {
+        padding: 0 15px; /* Weniger seitlicher Abstand */
+    }
+    .nav-center {
+        display: none; /* Mittleren Teil ausblenden, um Platz zu sparen */
+    }
+    .brand-title {
+        font-size: 1.25rem; /* Titel etwas verkleinern */
+    }
+    .brand-image {
+        height: 48px; /* Bild etwas verkleinern */
+    }
+
+    /* --- EXPANDED VIEW HEADER --- */
+    .expanded-header {
+        flex-direction: column; /* Elemente untereinander anordnen */
+        gap: 15px;
+    }
+    .expanded-title {
+        font-size: 1.5rem; /* Titel verkleinern */
+    }
+    .header-btn.back,
+    .header-btn.export {
+        margin: 0; /* Automatische Ränder zurücksetzen */
+    }
+
+    /* --- TABELLE SCROLLBAR --- */
+    /* Diese Klasse muss im HTML um die <table> gelegt werden! */
+    .table-container {
+        overflow-x: auto; /* Horizontales Scrollen aktivieren */
+        -webkit-overflow-scrolling: touch; /* Weiches Scrollen auf iOS */
+        border: 1px solid var(--border);
+        border-radius: 8px;
+    }
+    .item-table {
+        /* Mindestbreite, damit die Tabelle nicht unleserlich wird */
+        min-width: 700px;
+    }
+
+    /* --- FOOTER --- */
+    .footer-content {
+        flex-direction: column; /* Elemente untereinander anordnen */
+        gap: 15px;
+    }
+}
+
+/* Für sehr kleine mobile Geräte */
 @media (max-width: 600px) {
     .list-card {
-        flex: 1 1 100%;
+        flex: 1 1 100%; /* Karten nehmen die volle Breite ein */
+    }
+
+    /* Abstände für kleine Bildschirme reduzieren */
+    .list-grid, .expanded {
+        margin: 20px 0;
+    }
+    .expanded {
+        padding: 20px;
     }
 }
