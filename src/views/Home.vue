@@ -3,185 +3,336 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import * as DS from '@/store/dataStore.js'
 import unitsData from '@/assets/data/units.json'
 
-const expandedListId = ref(null)
-const showAddDialog = ref(false)
-
-const newItemName = ref('')
-const menge = ref('')
-const preis = ref('')
-const selectedUnit = ref('')
-const beschreibung = ref('')
-const category = ref('')
+// Grundzustand
 const lists = computed(() => DS.getData().lists)
-const isMobileMenuOpen = ref(false)
+const expandedListId = ref(null)
 
-const unitLabel = value => {
-  const found = unitsData.units.find(u => u.value === value)
-  return found ? found.label : value
-}
+// Zustände für Modals
+const isEditModalOpen = ref(false)
+const isDeleteConfirmOpen = ref(false)
+const isNewListModalOpen = ref(false)
+const isRenameListModalOpen = ref(false)
+const newListName = ref('')
+const editableItem = ref(null)
 
-function toggleMobileMenu() {
-  isMobileMenuOpen.value = !isMobileMenuOpen.value
-}
+// Zustände für den Auswahlmodus
+const isSelectionMode = ref(false)
+const selectedLists = ref(new Set())
 
+// Event Listener
 function resetToOverview() {
   expandedListId.value = null
+  isSelectionMode.value = false
+  selectedLists.value.clear()
 }
-
 onMounted(() => {
   window.addEventListener("karrenkauf-home-reset", resetToOverview)
 })
-
 onUnmounted(() => {
   window.removeEventListener("karrenkauf-home-reset", resetToOverview)
 })
 
-function preview(list) {
-  return list.items.slice(0, 5)
+// Hilfsfunktionen
+const unitLabel = (value) => unitsData.units.find(u => u.value === value)?.label || value
+const formatPrice = (value) => (typeof value === 'number' ? value.toFixed(2).replace('.', ',') + ' €' : '0,00 €')
+const previewItems = (list) => list.items.slice(0, 5)
+
+// Gesamtpreis-Berechnung
+const calculateTotalPrice = (list) => {
+  if (!list || !list.items) return 0
+  return list.items.reduce((total, item) => {
+    const price = item.preis || 0
+    const quantity = item.menge || 0
+    return total + (price * quantity)
+  }, 0)
 }
 
-function handleAddItem() {
-  if (!expandedListId.value) return
-  if (!newItemName.value.trim()) return
+// Item-Interaktionen
+const increaseQuantity = (item) => DS.updateItem(expandedListId.value, item.id, { menge: item.menge + 1 })
+const decreaseQuantity = (item) => item.menge > 0 && DS.updateItem(expandedListId.value, item.id, { menge: item.menge - 1 })
+const toggleChecked = (item) => DS.updateItem(expandedListId.value, item.id, { checked: !item.checked })
+const deleteItem = (item) => DS.deleteItem(expandedListId.value, item.id)
 
-  const item = DS.createItem(
-      newItemName.value,
-      beschreibung.value,
-      Number(menge.value),
-      selectedUnit.value,
-      Number(preis.value),
-      category.value
-  )
-
-  DS.addItemToList(expandedListId.value, item)
-
-  newItemName.value = ''
-  selectedUnit.value = ''
-  menge.value = ''
-  preis.value = ''
-  beschreibung.value = ''
-  category.value = ''
-
-  showAddDialog.value = false
+//  Modal-Logik (Item & Neue Liste)
+function openNewItemModal() {
+  editableItem.value = { id: null, name: '', menge: null, unit: '', preis: null, category: '', beschreibung: '' }
+  isEditModalOpen.value = true
+}
+function openEditModal(item) {
+  editableItem.value = { ...item }
+  isEditModalOpen.value = true
+}
+function saveItem() {
+  if (!editableItem.value || !editableItem.value.name.trim()) return
+  const itemToSave = { ...editableItem.value, menge: editableItem.value.menge || 0, preis: editableItem.value.preis || 0 }
+  if (itemToSave.id) {
+    DS.updateItem(expandedListId.value, itemToSave.id, itemToSave)
+  } else {
+    const { name, beschreibung, menge, unit, preis, category } = itemToSave
+    const newItem = DS.createItem(name, beschreibung, menge, unit, preis, category)
+    DS.addItemToList(expandedListId.value, newItem)
+  }
+  isEditModalOpen.value = false
 }
 
-function removeItem(item) {
-  DS.deleteItem(expandedListId.value, item.id);
+function openNewListModal() {
+  newListName.value = ''
+  isNewListModalOpen.value = true
+}
+function createNewList() {
+  if (!newListName.value.trim()) return
+  const newListId = DS.createList(newListName.value, 'user')
+  isNewListModalOpen.value = false
+  expandedListId.value = newListId
 }
 
-function toggleChecked(item) {
-  DS.updateItem(expandedListId.value, item.id, { checked: !item.checked });
+// Logik für "Liste umbenennen"
+function openRenameListModal() {
+  if (expandedListId.value) {
+    newListName.value = lists.value[expandedListId.value].name
+    isRenameListModalOpen.value = true
+  }
+}
+function renameList() {
+  if (!newListName.value.trim() || !expandedListId.value) return
+  DS.updateList(expandedListId.value, { name: newListName.value })
+  isRenameListModalOpen.value = false
 }
 
-function exportSingleList(id) {
-  const list = lists.value[id]
-  if (!list) return
-
-  const blob = new Blob([JSON.stringify(list, null, 2)], {
-    type: "application/json"
-  })
-
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement("a")
-  a.href = url
-  a.download = `${list.name}.json`
-  a.click()
-  URL.revokeObjectURL(url)
+// Listen-Lösch-Logik
+const openDeleteConfirm = () => isDeleteConfirmOpen.value = true
+function confirmDeleteList() {
+  if (expandedListId.value) {
+    DS.deleteList(expandedListId.value)
+    resetToOverview()
+  }
+  isDeleteConfirmOpen.value = false
 }
 
-function formatPrice(value) {
-  if (!value) return '0,00 €'
-  return Number(value).toFixed(2).replace('.', ',') + ' €'
+// Auswahlmodus-Logik
+function toggleSelectionMode() {
+  isSelectionMode.value = !isSelectionMode.value
+  selectedLists.value.clear()
+}
+function toggleListSelection(listId) {
+  if (selectedLists.value.has(listId)) {
+    selectedLists.value.delete(listId)
+  } else {
+    selectedLists.value.add(listId)
+  }
+}
+function selectAllLists() {
+  Object.keys(lists.value).forEach(id => selectedLists.value.add(id))
+}
+function deselectAllLists() {
+  selectedLists.value.clear()
+}
+function deleteSelectedLists() {
+  if (selectedLists.value.size === 0) return
+  selectedLists.value.forEach(id => DS.deleteList(id))
+  resetToOverview()
+}
+function exportSelectedLists() {
+  if (selectedLists.value.size === 0) return
+  console.log("Exportiere Listen:", Array.from(selectedLists.value))
+  alert(`${selectedLists.value.size} Listen exportiert (Logik hier einfügen)`)
 }
 </script>
 
 <template>
-  <div v-if="!expandedListId" class="list-grid">
-    <div
-        v-for="(list, id) in lists"
-        :key="id"
-        class="list-card"
-        @click="expandedListId = id"
-    >
-      <div class="list-card-header">
-        {{ list.name }} ({{ list.items.length }})
-      </div>
-
-      <div class="list-card-body">
-        <ul class="preview-list">
-          <li v-for="item in preview(list)" :key="item.id" :class="{ 'checked-item': item.checked }">
-            <span>• {{ item.name }} — {{ item.menge }} {{ unitLabel(item.unit) }}</span>
-          </li>
-        </ul>
-
-        <p v-if="list.items.length > 5" class="preview-more">… mehr</p>
-      </div>
-    </div>
-  </div>
-
-  <div v-else class="expanded">
+  <!-- ============================================================
+       DETAILANSICHT
+       ============================================================ -->
+  <div v-if="expandedListId && lists[expandedListId]" class="expanded">
     <div class="expanded-header">
-      <button class="header-btn back" @click="expandedListId = null">← Zurück</button>
+      <button class="header-btn back" @click="resetToOverview">← Zurück</button>
       <h2 class="expanded-title">{{ lists[expandedListId].name }} ({{ lists[expandedListId].items.length }})</h2>
-      <button class="header-btn export" @click="exportSingleList(expandedListId)">⬇️ Liste exportieren</button>
+      <div class="header-actions">
+        <button @click="openRenameListModal" class="header-btn">✏️ Umbenennen</button>
+        <button class="header-btn" @click="DS.exportList(expandedListId)">⬇️ Export</button>
+        <button @click="openDeleteConfirm" class="header-btn delete-list-btn">🗑️</button>
+      </div>
     </div>
 
     <div class="table-container">
       <table class="item-table">
         <thead>
-        <tr>
-          <th class="col-check">&nbsp;</th>
-          <th>Name</th>
-          <th>Menge</th>
-          <th>Einheit</th>
-          <th>Preis</th>
-          <th>Kategorie</th>
-          <th>Beschreibung</th>
-          <th class="col-delete">&nbsp;</th>
-        </tr>
+          <tr>
+            <th class="col-actions-header">Aktionen</th>
+            <th>Name</th>
+            <th>Menge</th>
+            <th>Einheit</th>
+            <th>Preis</th>
+            <th>Kategorie</th>
+            <th>Beschreibung</th>
+          </tr>
         </thead>
-
         <tbody>
-        <tr v-for="item in lists[expandedListId].items" :key="item.id" :class="{ checked: item.checked }">
-          <td>
-            <button class="tbl-btn check" @click.stop="toggleChecked(item)">✔</button>
-          </td>
-          <td>{{ item.name }}</td>
-          <td>{{ item.menge }}</td>
-          <td>{{ unitLabel(item.unit) }}</td>
-          <td>{{ formatPrice(item.preis) }}</td>
-          <td>{{ item.category }}</td>
-          <td>{{ item.beschreibung }}</td>
-          <td><button class="tbl-btn delete" @click.stop="removeItem(item)">🗑</button></td>
-        </tr>
+          <tr v-for="item in lists[expandedListId].items" :key="item.id" :class="{ checked: item.checked }">
+            <td class="actions-cell">
+              <button class="tbl-btn check" @click.stop="toggleChecked(item)">✔</button>
+              <button class="tbl-btn edit" @click.stop="openEditModal(item)">✏️</button>
+              <button class="tbl-btn delete" @click.stop="deleteItem(item)">🗑</button>
+            </td>
+            <td>{{ item.name }}</td>
+            <td>
+              <div class="quantity-control">
+                <button @click.stop="decreaseQuantity(item)" :disabled="item.menge === 0">-</button>
+                <span>{{ item.menge }}</span>
+                <button @click.stop="increaseQuantity(item)">+</button>
+              </div>
+            </td>
+            <td>{{ unitLabel(item.unit) }}</td>
+            <td>{{ formatPrice(item.preis) }}</td>
+            <td>{{ item.category }}</td>
+            <td>{{ item.beschreibung }}</td>
+          </tr>
         </tbody>
+        <tfoot>
+        <tr>
+          <td colspan="2" class="total-price-label">Gesamtpreis:</td>
+          <td colspan="2" class="total-price-value">{{ formatPrice(calculateTotalPrice(lists[expandedListId])) }}</td>
+          <td colspan="2"></td>
+          <td class="add-item-cell">
+            <button class="table-add-btn" @click="openNewItemModal">➕ Neues Item</button>
+          </td>
+        </tr>
+        </tfoot>
       </table>
     </div>
+  </div>
 
-    <div class="table-add-container">
-      <button class="table-add-btn" @click="showAddDialog = true">➕ Neues Item</button>
-    </div>
-
-    <div v-if="showAddDialog" class="modal-backdrop" @click.self="showAddDialog = false">
-      <div class="modal">
-        <h2>Neues Item</h2>
-
-        <input v-model="newItemName" placeholder="Artikelname" />
-        <input v-model="menge" type="number" min="1" placeholder="Menge" />
-        <input v-model="preis" type="number" min="0" placeholder="Preis" />
-        <input v-model="category" placeholder="Kategorie" />
-        <input v-model="beschreibung" placeholder="Beschreibung" />
-
-        <select v-model="selectedUnit">
-          <option disabled value="">Einheit…</option>
-          <option v-for="u in unitsData.units" :key="u.value" :value="u.value">
-            {{ u.label }}
-          </option>
-        </select>
-
-        <button @click="handleAddItem">Hinzufügen</button>
-        <button class="cancel" @click="showAddDialog = false">Abbrechen</button>
+  <!-- ============================================================
+       ÜBERSICHTSANSICHT
+       ============================================================ -->
+  <div v-else>
+    <div class="overview-container">
+      <div class="global-actions">
+        <div v-if="!isSelectionMode" class="normal-actions">
+          <button @click="openNewListModal" class="action-btn primary">➕ Neue Liste</button>
+          <button v-if="Object.keys(lists).length > 0" @click="toggleSelectionMode" class="action-btn">✏️ Bearbeiten</button>
+        </div>
+        <div v-else class="selection-actions">
+          <button @click="selectAllLists">Alle auswählen</button>
+          <button @click="deselectAllLists" :disabled="selectedLists.size === 0">Auswahl aufheben</button>
+          <button @click="exportSelectedLists" :disabled="selectedLists.size === 0">Exportieren</button>
+          <button @click="deleteSelectedLists" :disabled="selectedLists.size === 0" class="delete">Löschen</button>
+          <button @click="toggleSelectionMode" class="cancel">Abbrechen</button>
+        </div>
       </div>
+      <div class="list-grid">
+        <p v-if="Object.keys(lists).length === 0" class="text-center w-full">Keine Listen vorhanden. Erstelle eine neue!</p>
+        <div v-for="(list, id) in lists" :key="id" class="list-card" :class="{ 'is-selected': selectedLists.has(id) }" @click="isSelectionMode ? toggleListSelection(id) : (expandedListId = id)">
+          <div v-if="isSelectionMode" class="selection-checkbox">
+            <div class="checkbox-visual">
+              {{ selectedLists.has(id) ? '✔' : '' }}
+            </div>
+          </div>
+          <div class="list-card-header">
+            {{ list.name }} ({{ list.items.length }})
+          </div>
+          <div class="list-card-body">
+            <ul class="preview-list">
+              <li v-for="item in previewItems(list)" :key="item.id" :class="{ 'checked-item': item.checked }">
+                <div class="preview-item-layout">
+                  <span class="item-name">• {{ item.name }}</span>
+                  <span class="item-quantity" v-if="item.menge > 0"> {{ item.menge }} {{ unitLabel(item.unit) }}</span>
+                </div>
+              </li>
+            </ul>
+            <p v-if="list.items.length > 5" class="preview-more">… und {{ list.items.length - 5 }} weitere</p>
+          </div>
+          <div class="list-card-footer">
+            <span>Gesamtpreis:</span>
+            <strong>{{ formatPrice(calculateTotalPrice(list)) }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================
+       MODALS
+       ============================================================ -->
+  <div v-if="isEditModalOpen" class="modal-backdrop" @click.self="isEditModalOpen = false">
+    <div class="modal">
+      <h2 class="modal-title">{{ editableItem.id ? 'Item bearbeiten' : 'Neues Item' }}</h2>
+      <form @submit.prevent="saveItem" class="modal-form">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input v-model="editableItem.name" id="name" type="text" required />
+        </div>
+        <div class="form-group">
+          <label for="menge">Menge</label>
+          <input v-model.number="editableItem.menge" id="menge" type="number" min="0" />
+        </div>
+        <div class="form-group">
+          <label for="einheit">Einheit</label>
+          <select v-model="editableItem.unit" id="einheit" required>
+            <option value="" disabled>Einheit auswählen...</option>
+            <option v-for="u in unitsData.units" :key="u.value" :value="u.value">{{ u.label }}</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="preis">Preis (€)</label>
+          <input v-model.number="editableItem.preis" id="preis" type="number" min="0" step="0.01"/>
+        </div>
+        <div class="form-group">
+          <label for="kategorie">Kategorie</label>
+          <input v-model="editableItem.category" id="kategorie" type="text"/>
+        </div>
+        <div class="form-group">
+          <label for="beschreibung">Beschreibung</label>
+          <input v-model="editableItem.beschreibung" id="beschreibung" type="text"/>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="cancel" @click="isEditModalOpen = false">Abbrechen</button>
+          <button type="submit">{{ editableItem.id ? 'Speichern' : 'Hinzufügen' }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div v-if="isDeleteConfirmOpen" class="modal-backdrop" @click.self="isDeleteConfirmOpen = false">
+    <div class="modal">
+      <h2 class="modal-title">Liste löschen?</h2>
+      <p>Möchtest du die Liste "{{ lists[expandedListId]?.name }}" wirklich endgültig löschen?</p>
+      <div class="modal-actions">
+        <button class="cancel" @click="isDeleteConfirmOpen = false">Abbrechen</button>
+        <button class="delete" @click="confirmDeleteList">Löschen</button>
+      </div>
+    </div>
+  </div>
+
+  <div v-if="isNewListModalOpen" class="modal-backdrop" @click.self="isNewListModalOpen = false">
+    <div class="modal">
+      <h2 class="modal-title">Neue Einkaufsliste</h2>
+      <form @submit.prevent="createNewList" class="modal-form">
+        <div class="form-group">
+          <label for="new-list-name">Name der Liste</label>
+          <input v-model="newListName" id="new-list-name" type="text" required/>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="cancel" @click="isNewListModalOpen = false">Abbrechen</button>
+          <button type="submit">Erstellen</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div v-if="isRenameListModalOpen" class="modal-backdrop" @click.self="isRenameListModalOpen = false">
+    <div class="modal">
+      <h2 class="modal-title">Liste umbenennen</h2>
+      <form @submit.prevent="renameList" class="modal-form">
+        <div class="form-group">
+          <label for="rename-list-name">Neuer Name der Liste</label>
+          <input v-model="newListName" id="rename-list-name" type="text" required />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="cancel" @click="isRenameListModalOpen = false">Abbrechen</button>
+          <button type="submit">Umbenennen</button>
+        </div>
+      </form>
     </div>
   </div>
 </template>

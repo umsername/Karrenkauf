@@ -4,25 +4,18 @@
 :root {
     --bg: #ebebeb;
     --text: #222;
-
     --card-bg: #ffffff;
     --card-shadow: rgba(0, 0, 0, 0.06);
-
     --nav-bg: #262626;
     --nav-text: #ffffff;
-
     --nav-btn-bg: #3b3b3b;
     --nav-btn-hover: #4a4a4a;
     --nav-btn-border: #555;
-
     --border: #d4d4d4;
-
     --table-header: #f4f4f4;
     --table-hover: #f8f8f8;
-
     --modal-bg: #ffffff;
     --modal-backdrop: rgba(0,0,0,0.45);
-
     --brand-bg1: #ffe6c7;
     --brand-bg2: #ffd3a1;
     --brand-border: #f3b684;
@@ -32,25 +25,18 @@
 :root.dark {
     --bg: #121212;
     --text: #ececec;
-
     --card-bg: #1d1d1d;
     --card-shadow: rgba(0, 0, 0, 0.35);
-
     --nav-bg: #1a1a1a;
     --nav-text: #eeeeee;
-
     --nav-btn-bg: #2a2a2a;
     --nav-btn-hover: #333;
     --nav-btn-border: #444;
-
     --border: #3b3b3b;
-
     --table-header: #2a2a2a;
     --table-hover: #1f1f1f;
-
     --modal-bg: #1d1d1d;
     --modal-backdrop: rgba(0,0,0,0.65);
-
     --brand-bg1: #2c1c00;
     --brand-bg2: #3a2400;
     --brand-border: #5d3a00;
@@ -77,9 +63,8 @@ body {
     color: var(--text);
 }
 
-
 /* ============================================================
-   APP WRAPPER (für Sticky-Footer)
+   APP WRAPPER & LAYOUT
 ============================================================ */
 .app-wrapper {
     min-height: 100vh;
@@ -94,51 +79,48 @@ body {
     padding-top: 20px;
 }
 
+.overview-container {
+    margin: 40px 0;
+}
 
-
-/* ============================================================
-   BRAND / LOGO BOX
-============================================================ */
-.brand-anchor {
-    height: 70px;
+.global-actions {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 0 18px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--brand-bg1), var(--brand-bg2));
-    border: 1px solid var(--brand-border);
-    box-shadow: 0 3px 10px var(--card-shadow);
+    justify-content: flex-end;
+    margin-bottom: 20px;
+    height: 40px;
+}
+
+.action-btn {
+    background: var(--nav-btn-bg);
+    border: 1px solid var(--nav-btn-border);
+    color: var(--nav-text);
+    padding: 10px 18px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: 0.2s ease;
-    text-decoration: none;
+    transition: 0.15s ease;
+    font-weight: 500;
 }
 
-.brand-anchor:visited {
-    color: inherit;
+.action-btn:hover {
+    background: var(--nav-btn-hover);
 }
 
-.brand-anchor:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 14px var(--card-shadow);
+.action-btn.primary {
+    background: #2563eb;
+    border-color: #1d4ed8;
 }
 
-.brand-image {
-    height: 52px;
-    width: auto;
-    object-fit: contain;
+.action-btn.primary:hover {
+    background: #1d4ed8;
 }
 
-.brand-title {
-    font-size: 1.45rem;
-    font-weight: 700;
-    color: var(--brand-text);
+.normal-actions {
+    display: flex;
+    gap: 10px;
 }
-
-
 
 /* ============================================================
-   NAVBAR
+   NAVBAR & BRAND
 ============================================================ */
 .navbar {
     width: 100%;
@@ -186,16 +168,49 @@ body {
     background: var(--nav-btn-hover);
 }
 
+.brand-anchor {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 18px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--brand-bg1), var(--brand-bg2));
+    border: 1px solid var(--brand-border);
+    box-shadow: 0 3px 10px var(--card-shadow);
+    cursor: pointer;
+    transition: 0.2s ease;
+    text-decoration: none;
+}
+
+.brand-anchor:visited {
+    color: inherit;
+}
+
+.brand-anchor:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px var(--card-shadow);
+}
+
+.brand-image {
+    height: 52px;
+    width: auto;
+    object-fit: contain;
+}
+
+.brand-title {
+    font-size: 1.45rem;
+    font-weight: 700;
+    color: var(--brand-text);
+}
 
 /* ============================================================
-   LIST OVERVIEW
+   LIST OVERVIEW & EXPANDED VIEW
 ============================================================ */
 .list-grid {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-between;
     gap: 25px;
-    margin: 40px 0;
 }
 
 .list-card {
@@ -209,6 +224,7 @@ body {
     flex-direction: column;
     transition: 0.2s ease;
     cursor: pointer;
+    position: relative;
 }
 
 .list-card:hover {
@@ -238,10 +254,6 @@ body {
     transition: 0.2s ease;
 }
 
-
-/* ============================================================
-   EXPANDED LIST VIEW
-============================================================ */
 .expanded {
     background: var(--card-bg);
     border: 2px solid var(--border);
@@ -254,7 +266,6 @@ body {
 .expanded-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     padding-bottom: 12px;
     border-bottom: 2px solid var(--border);
     margin-bottom: 20px;
@@ -264,36 +275,91 @@ body {
     font-size: 1.9rem;
     font-weight: 700;
     text-align: center;
-    flex: 1;
+    flex-grow: 1;
+}
+
+.header-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .header-btn {
-    padding: 8px 16px;
-    border-radius: 8px;
     background: var(--nav-btn-bg);
     border: 1px solid var(--nav-btn-border);
     color: var(--nav-text);
+    border-radius: 8px;
     cursor: pointer;
     transition: 0.15s ease;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    white-space: nowrap;
 }
 
 .header-btn:hover {
     background: var(--nav-btn-hover);
 }
 
-.header-btn.back { margin-right: auto; }
-.header-btn.export { margin-left: auto; }
+.header-btn.back {
+    margin-right: 20px;
+}
 
+.delete-list-btn {
+    background: #e53e3e;
+    border-color: #c53030;
+    padding: 8px;
+}
 
+.delete-list-btn:hover {
+    background: #c53030;
+}
 
+.delete-list-btn svg {
+    width: 20px;
+    height: 20px;
+}
+
+.preview-list li {
+    padding: 4px 0;
+}
+
+.preview-item-layout {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+
+.item-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex-grow: 1;
+}
+
+.item-quantity {
+    flex-shrink: 0;
+    color: var(--text);
+    opacity: 0.7;
+    font-size: 0.9rem;
+}
+
+.checked-item .item-name,
+.checked-item .item-quantity {
+    text-decoration: line-through;
+    opacity: 0.6;
+}
 /* ============================================================
-   ITEM TABLE (OPTIMIZED FOR ALIGNMENT)
+   ITEM TABLE
 ============================================================ */
 .item-table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
-    table-layout: fixed;
 }
 
 .item-table th,
@@ -302,6 +368,7 @@ body {
     text-align: left;
     border-bottom: 1px solid var(--border);
     vertical-align: middle;
+    white-space: nowrap;
 }
 
 .item-table th {
@@ -309,20 +376,8 @@ body {
     border-bottom-width: 2px;
 }
 
-.item-table tr:hover {
+.item-table tr:not(.checked):hover {
     background: var(--table-hover);
-}
-
-.col-check { width: 60px; }
-.col-delete { width: 60px; }
-
-.item-table th.col-check,
-.item-table td:first-child,
-.item-table th.col-delete,
-.item-table td:last-child {
-    text-align: center;
-    padding-left: 0;
-    padding-right: 0;
 }
 
 .checked td {
@@ -331,29 +386,82 @@ body {
     transition: 0.2s ease;
 }
 
+.col-actions-header {
+    width: 140px;
+    text-align: center;
+    padding: 12px 0;
+}
+
+.actions-cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 0;
+}
+
+.checked .actions-cell {
+    text-decoration: none;
+    opacity: 1;
+}
+
 .tbl-btn {
     background: var(--nav-btn-bg);
     border: 1px solid var(--nav-btn-border);
     color: var(--nav-text);
-    padding: 4px 8px;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 0.85rem;
     transition: 0.15s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
 }
 
 .tbl-btn:hover {
     background: var(--nav-btn-hover);
 }
 
-.tbl-btn.delete {
-    color: #ff6b6b;
-}
+.tbl-btn.check { font-size: 1rem; }
+.tbl-btn.edit { font-size: 1.1rem; }
+.tbl-btn.delete { font-size: 1.1rem; color: #ff6b6b; }
 
 .checked .tbl-btn.check {
     background: #2e7d32 !important;
     border-color: #1b5e20 !important;
     color: white;
+}
+
+.quantity-control {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quantity-control button {
+    background: var(--nav-btn-bg);
+    border: 1px solid var(--nav-btn-border);
+    color: var(--nav-text);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.15s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.quantity-control button:hover:not(:disabled) {
+    background: var(--nav-btn-hover);
+}
+
+.quantity-control button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
 }
 
 .table-add-container {
@@ -381,7 +489,6 @@ body {
     background: var(--nav-btn-hover);
 }
 
-
 /* ============================================================
    MODAL
 ============================================================ */
@@ -396,42 +503,108 @@ body {
 }
 
 .modal {
-    background: var(--modal-bg);
-    padding: 25px;
-    border-radius: 12px;
-    width: min(360px, 90%);
-    box-shadow: 0 4px 16px var(--card-shadow);
+    background: var(--card-bg);
+    padding: 30px;
+    border-radius: 14px;
+    width: min(420px, 90%);
+    box-shadow: 0 5px 20px var(--card-shadow);
+    border: 1px solid var(--border);
+}
+
+.modal-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+}
+
+.modal p {
+    line-height: 1.6;
+    margin-bottom: 10px;
+}
+
+.modal-form {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.form-group label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: var(--text);
+    opacity: 0.8;
 }
 
 .modal input,
 .modal select {
-    padding: 10px;
-    border-radius: 6px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
     background: var(--bg);
     border: 1px solid var(--border);
     color: var(--text);
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
 }
 
-.modal button {
-    padding: 10px;
-    border-radius: 6px;
-    background: var(--nav-bg);
-    color: var(--nav-text);
+.modal input:focus,
+.modal select:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.modal-actions button {
+    flex: 1;
+    padding: 12px;
+    font-weight: bold;
+    font-size: 1rem;
+    border-radius: 8px;
     border: none;
     cursor: pointer;
+    transition: 0.15s ease;
 }
 
-.modal button.cancel {
-    background: #888;
+.modal-actions .cancel {
+    background: #4b5563;
+    color: white;
 }
 
+.modal-actions .cancel:hover {
+    background: #5a6676;
+}
 
+.modal-actions button[type="submit"] {
+    background: var(--nav-btn-bg);
+    color: var(--nav-text);
+}
+
+.modal-actions button[type="submit"]:hover {
+    background: var(--nav-btn-hover);
+}
+
+.modal-actions .delete {
+    background: #e53e3e;
+    color: white;
+}
+
+.modal-actions .delete:hover {
+    background: #c53030;
+}
 
 /* ============================================================
-   FOOTER (Sticky Footer)
+   FOOTER & RESPONSIVE
 ============================================================ */
 .footer {
     width: 100%;
@@ -468,111 +641,209 @@ body {
     color: #facc7d;
 }
 
-/* ============================================================
-   GENERIC PAGE LAYOUT (for all router views)
-============================================================ */
-.page {
-    background: var(--card-bg);
-    border: 2px solid var(--border);
-    border-radius: 14px;
-    padding: 40px;
-    margin: 40px auto;
-    width: min(1100px, 95%);
-    box-shadow: 0 3px 10px var(--card-shadow);
-}
-
-.page h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 20px;
-}
-
-.page p {
-    font-size: 1.1rem;
-    line-height: 1.6;
-}
-
-.page pre {
-    padding: 20px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    font-family: monospace;
-    font-size: 1rem;
-}
-
-
-/* ============================================================
-   RESPONSIVE (MOBILE-FRIENDLY)
-============================================================ */
-
-/* Für Tablets und kleinere Geräte */
 @media (max-width: 900px) {
-    .list-card {
-        flex: 1 1 calc(50% - 25px);
-    }
+    .list-card { flex: 1 1 calc(50% - 25px); }
 }
 
-/* Für die meisten mobilen Geräte */
 @media (max-width: 768px) {
-    /* --- NAVBAR --- */
-    .navbar {
-        padding: 0 15px; /* Weniger seitlicher Abstand */
-    }
-    .nav-center {
-        display: none; /* Mittleren Teil ausblenden, um Platz zu sparen */
-    }
-    .brand-title {
-        font-size: 1.25rem; /* Titel etwas verkleinern */
-    }
-    .brand-image {
-        height: 48px; /* Bild etwas verkleinern */
-    }
+    .navbar { padding: 0 15px; }
+    .nav-center { display: none; }
+    .brand-title { font-size: 1.25rem; }
+    .brand-image { height: 48px; }
 
-    /* --- EXPANDED VIEW HEADER --- */
     .expanded-header {
-        flex-direction: column; /* Elemente untereinander anordnen */
-        gap: 15px;
+        flex-wrap: wrap;
+        gap: 10px;
     }
     .expanded-title {
-        font-size: 1.5rem; /* Titel verkleinern */
-    }
-    .header-btn.back,
-    .header-btn.export {
-        margin: 0; /* Automatische Ränder zurücksetzen */
-    }
-
-    /* --- TABELLE SCROLLBAR --- */
-    /* Diese Klasse muss im HTML um die <table> gelegt werden! */
-    .table-container {
-        overflow-x: auto; /* Horizontales Scrollen aktivieren */
-        -webkit-overflow-scrolling: touch; /* Weiches Scrollen auf iOS */
-        border: 1px solid var(--border);
-        border-radius: 8px;
-    }
-    .item-table {
-        /* Mindestbreite, damit die Tabelle nicht unleserlich wird */
-        min-width: 700px;
+        font-size: 1.5rem;
+        width: 100%;
+        order: -1;
+        text-align: center;
+        margin-bottom: 10px;
     }
 
-    /* --- FOOTER --- */
-    .footer-content {
-        flex-direction: column; /* Elemente untereinander anordnen */
-        gap: 15px;
-    }
+    .table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid var(--border); border-radius: 8px; }
+    .item-table { min-width: 700px; }
+    .footer-content { flex-direction: column; gap: 15px; }
 }
 
-/* Für sehr kleine mobile Geräte */
 @media (max-width: 600px) {
-    .list-card {
-        flex: 1 1 100%; /* Karten nehmen die volle Breite ein */
-    }
+    .list-card { flex: 1 1 100%; }
+    .list-grid, .expanded { margin: 20px 0; }
+    .expanded { padding: 20px; }
+}
 
-    /* Abstände für kleine Bildschirme reduzieren */
-    .list-grid, .expanded {
-        margin: 20px 0;
-    }
-    .expanded {
-        padding: 20px;
-    }
+/* ============================================================
+   AUSWAHLMODUS & NAVBAR DROPDOWN
+============================================================ */
+.selection-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.selection-actions button {
+    background: var(--nav-btn-bg);
+    border: 1px solid var(--nav-btn-border);
+    color: var(--nav-text);
+    padding: 10px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.15s ease;
+    font-weight: 500;
+}
+
+.selection-actions button:hover:not(:disabled) {
+    background: var(--nav-btn-hover);
+}
+
+.selection-actions button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.selection-actions button.delete {
+    background: #9b2c2c;
+    border-color: #742a2a;
+}
+
+.selection-actions button.delete:hover:not(:disabled) {
+    background: #c53030;
+}
+
+.selection-actions button.cancel {
+    background: #4b5563;
+    border-color: #374151;
+}
+
+.selection-actions button.cancel:hover {
+    background: #5a6676;
+}
+
+.selection-checkbox {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 28px;
+    height: 28px;
+    background: rgba(0,0,0,0.3);
+    border: 2px solid var(--border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+}
+
+.checkbox-visual {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    color: #2e7d32;
+    font-weight: bold;
+    transition: 0.2s ease;
+}
+
+.list-card.is-selected .checkbox-visual {
+    background: #4caf50;
+    color: white;
+}
+
+.list-card.is-selected {
+    border-color: #4caf50;
+    transform: scale(1.02);
+}
+
+.profile-menu-wrapper {
+    position: relative;
+}
+
+.profile-menu {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    box-shadow: 0 4px 12px var(--card-shadow);
+    width: 200px;
+    z-index: 110;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.profile-menu-item {
+    background: none;
+    border: none;
+    color: var(--text);
+    padding: 12px 16px;
+    text-align: left;
+    width: 100%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 1rem;
+    text-decoration: none;
+}
+
+.profile-menu-item:hover {
+    background: var(--table-hover);
+}
+
+.profile-menu-item + .profile-menu-item {
+    border-top: 1px solid var(--border);
+}
+
+/* ============================================================
+   STILE FÜR GESAMTPREIS & TABELLEN-FOOTER
+============================================================ */
+.list-card-footer {
+    margin-top: auto;
+    padding: 12px 22px;
+    border-top: 1px solid var(--border);
+    background: var(--table-header);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.list-card-footer strong {
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.item-table tfoot tr {
+    background: var(--card-bg);
+}
+
+.item-table tfoot td {
+    border-top: 2px solid var(--border);
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.total-price-label {
+    text-align: right;
+    padding-right: 10px;
+}
+
+.total-price-value {
+    white-space: nowrap;
+}
+
+.add-item-cell {
+    text-align: right;
+}
+
+.table-add-container {
+    display: none;
 }

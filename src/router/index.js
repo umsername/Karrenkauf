@@ -13,9 +13,6 @@ import Feedback from '@/views/Feedback.vue'
 import Credits from '@/views/Credits.vue'
 import LegalNotice from '@/views/LegalNotice.vue'
 
-// robots.txt can't be served through router – we simulate a view instead
-import Robots from '@/views/Robots.vue'
-
 export default createRouter({
     history: createWebHistory(),
     routes: [
@@ -32,8 +29,5 @@ export default createRouter({
         { path: '/feedback', component: Feedback },
         { path: '/credits', component: Credits },
         { path: '/legal-notice', component: LegalNotice },
-
-        // simulated robots.txt via UI
-        { path: '/robots.txt', component: Robots }
     ]
 })

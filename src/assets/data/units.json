@@ -9,6 +9,7 @@
     { "value": "dose", "label": "Dose" },
     { "value": "kiste", "label": "Kiste" },
     { "value": "fl",   "label": "Flasche" },
-    { "value": "bund", "label": "Bund" }
+    { "value": "bund", "label": "Bund" },
+    { "value": "karton", "label": "Karton"}
   ]
 }

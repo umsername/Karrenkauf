@@ -73,7 +73,7 @@ export function addItemsToList(listId, itemsArray) {
 
 // CRUD Operationen - Create Read Update Delete
 
-//file local speichern
+// file local speichern
 export function saveData() {
     localStorage.setItem("shoppingData", JSON.stringify(data));
 }
@@ -81,6 +81,22 @@ export function saveData() {
 // Löscht eine Liste anhand der ID
 export function deleteList(id) {
     delete data.lists[id];
+    saveData();
+}
+
+// Setzt das Listen-Objekt auf ein leeres Objekt zurück
+export function deleteAllLists() {
+    data.lists = {};
+    saveData();
+}
+
+// Aktualisiert die Daten einer Liste (z.B. den Namen)
+export function updateList(id, newData) {
+    const list = data.lists[id];
+    if (!list) return;
+
+    Object.assign(list, newData); // Fügt die neuen Daten zum Listenobjekt hinzu
+    list.updatedAt = nowMs();
     saveData();
 }
 
