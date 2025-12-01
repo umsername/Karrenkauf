@@ -135,8 +135,9 @@ function deleteSelectedLists() {
 function exportSelectedLists() {
   if (selectedLists.value.size === 0) return
   console.log("Exportiere Listen:", Array.from(selectedLists.value))
-  alert(`${selectedLists.value.size} Listen exportiert (Logik hier einfügen)`)
+  DS.exportMultipleLists(selectedLists.value)
 }
+
 </script>
 
 <template>
