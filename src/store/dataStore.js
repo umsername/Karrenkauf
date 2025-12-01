@@ -158,12 +158,28 @@ function downloadJSON(filename, dataObj) {
     URL.revokeObjectURL(url);
 }
 
+// Export mehrere Listen anhand ID
+export function exportMultipleLists(selectedSet){
+    const exportObj = { lists: {} };
+    for (const listId of selectedSet){
+        const list = data.lists[listId];
+        if (list) {
+            exportObj.lists[listId] = list;
+        }
+    }
+    downloadJSON("multiple-lists-export.json", exportObj);
+}
+
 // Export einer Liste als JSON Datei
 export function exportList(listId) {
     const list = data.lists[listId];
     if (!list) return false;
-
-    downloadJSON(`list-${listId}.json`, list);
+    const exportObj = {
+        lists: {
+            [listId]: list
+        }
+    };
+    downloadJSON(`list-${listId}.json`, exportObj);
     return true;
 }
 
@@ -199,14 +215,12 @@ export async function importAllAdd(file) {
 
     for (let id in imported.lists) {
         let list = imported.lists[id];
-
         // Kollision verhindern
         let newId = id;
         if (data.lists[id]) {
             newId = uuid();
             list.id = newId;
         }
-
         data.lists[newId] = list;
     }
 
@@ -220,13 +234,10 @@ export async function importAllRestore(file) {
     const imported = JSON.parse(text);
 
     if (!imported.lists) throw new Error("Ungültiges Format.");
-
     // localStorage komplett löschen
     localStorage.removeItem("shoppingData");
-
     // DataStore ersetzen
-    data = imported;
-
+    data.lists = imported.lists;
     // neu speichern
     saveData();
 
