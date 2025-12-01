@@ -6,6 +6,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const darkMode = ref(false)
 const importInput = ref(null)
+const restoreInput = ref(null)
 const isProfileMenuOpen = ref(false)
 
 // Refs für das Menü UND den Button
@@ -21,9 +22,21 @@ function triggerImport() {
   importInput.value.click()
   isProfileMenuOpen.value = false
 }
+
+function triggerRestore(){
+  restoreInput.value.click()
+  isProfileMenuOpen.value = false
+}
+
 async function handleImport(e) {
   const file = e.target.files[0]
   if (file) await DS.importAllAdd(file)
+  e.target.value = ''
+}
+
+async function handleRestore(e) {
+  const file = e.target.files[0]
+  if (file) await DS.importAllRestore(file)
   e.target.value = ''
 }
 
@@ -66,7 +79,9 @@ onUnmounted(() => {
         <span class="brand-title">Karrenkauf</span>
       </div>
     </div>
-    <div class="nav-center"></div>
+    <div class="nav-center">
+      <button class="nav-btn" @click="goToHome"> Übersicht </button>
+    </div>
     <div class="nav-right">
       <button class="nav-btn" @click="toggleDarkMode">
         <span v-if="darkMode">Lightmode ☀️</span>
@@ -79,9 +94,12 @@ onUnmounted(() => {
         <div v-if="isProfileMenuOpen" class="profile-menu" ref="profileMenu">
           <router-link to="/profile" class="profile-menu-item" @click="isProfileMenuOpen = false">👤 Profil</router-link>
           <button @click="triggerImport" class="profile-menu-item">⬆️ Import</button>
+          <button @click="triggerRestore" class="profile-menu-item"> Restore Backup </button>
         </div>
       </div>
     </div>
     <input ref="importInput" type="file" hidden @change="handleImport"/>
+    <input ref="restoreInput" type="file" hidden @change="handleRestore"/>
+
   </nav>
 </template>
