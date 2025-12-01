@@ -16,6 +16,8 @@
         <router-link to="/robots.txt">Robots.txt</router-link>
         <router-link to="/legal-notice">Rechtliche Hinweise</router-link>
       </div>
+      
+      <span> Version 0.01 </span>
     </div>
   </footer>
 </template>
