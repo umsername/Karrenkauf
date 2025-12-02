@@ -1,7 +1,3 @@
-# Karenkauf
-ein asw Projekt haher.
-
-
 # Initialisierung
 In einem Ordner deiner Wahl das **Terminal öffnen** (*Netzlaufwerke* gehen *nicht*!)<br/>
 Zuerst mit **git clone https://github.com/umsername/Karrenkauf.git** Projekt downloaden<br/>
