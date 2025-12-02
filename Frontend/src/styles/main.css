@@ -6,20 +6,41 @@
     --text: #222;
     --card-bg: #ffffff;
     --card-shadow: rgba(0, 0, 0, 0.06);
+
     --nav-bg: #262626;
     --nav-text: #ffffff;
     --nav-btn-bg: #3b3b3b;
     --nav-btn-hover: #4a4a4a;
     --nav-btn-border: #555;
+
     --border: #d4d4d4;
     --table-header: #f4f4f4;
     --table-hover: #f8f8f8;
+
     --modal-bg: #ffffff;
     --modal-backdrop: rgba(0,0,0,0.45);
+
     --brand-bg1: #ffe6c7;
     --brand-bg2: #ffd3a1;
     --brand-border: #f3b684;
     --brand-text: #3b2400;
+
+    /* Primary-Buttons (Lightmode) */
+    --primary-btn-bg: var(--brand-bg2);
+    --primary-btn-border: var(--brand-border);
+    --primary-btn-text: var(--brand-text);
+    --primary-btn-hover-bg: var(--brand-bg1);
+
+    /* Tabellen-Action-Buttons (Lightmode, heller) */
+    --tbl-btn-bg: #f3f3f3;
+    --tbl-btn-border: #dedede;
+    --tbl-btn-text: #555;
+    --tbl-btn-hover-bg: #e5e5e5;
+    /* Header-Buttons (Detailansicht) Lightmode */
+    --header-btn-bg: #f3f3f3;
+    --header-btn-border: #dedede;
+    --header-btn-text: #333;
+    --header-btn-hover-bg: #e5e5e5;
 }
 
 :root.dark {
@@ -27,22 +48,43 @@
     --text: #ececec;
     --card-bg: #1d1d1d;
     --card-shadow: rgba(0, 0, 0, 0.35);
+
     --nav-bg: #1a1a1a;
     --nav-text: #eeeeee;
     --nav-btn-bg: #2a2a2a;
     --nav-btn-hover: #333;
     --nav-btn-border: #444;
+
     --border: #3b3b3b;
     --table-header: #2a2a2a;
     --table-hover: #1f1f1f;
+
     --modal-bg: #1d1d1d;
     --modal-backdrop: rgba(0,0,0,0.65);
+
     --brand-bg1: #2c1c00;
     --brand-bg2: #3a2400;
     --brand-border: #5d3a00;
     --brand-text: #ffddb0;
-}
 
+    /* Primary-Buttons (Darkmode) */
+    --primary-btn-bg: #3a2400;
+    --primary-btn-border: #5d3a00;
+    --primary-btn-text: #ffddb0;
+    --primary-btn-hover-bg: #2c1c00;
+
+    /* Tabellen-Buttons im Darkmode wie bisher dunkel */
+    --tbl-btn-bg: var(--nav-btn-bg);
+    --tbl-btn-border: var(--nav-btn-border);
+    --tbl-btn-text: var(--nav-text);
+    --tbl-btn-hover-bg: var(--nav-btn-hover);
+
+    /* Header-Buttons im Darkmode wie bisher dunkel */
+    --header-btn-bg: var(--nav-btn-bg);
+    --header-btn-border: var(--nav-btn-border);
+    --header-btn-text: var(--nav-text);
+    --header-btn-hover-bg: var(--nav-btn-hover);
+}
 
 /* ============================================================
    GLOBAL RESET
@@ -90,6 +132,9 @@ body {
     height: 40px;
 }
 
+/* ============================================================
+   BUTTONS
+============================================================ */
 .action-btn {
     background: var(--nav-btn-bg);
     border: 1px solid var(--nav-btn-border);
@@ -103,15 +148,6 @@ body {
 
 .action-btn:hover {
     background: var(--nav-btn-hover);
-}
-
-.action-btn.primary {
-    background: #2563eb;
-    border-color: #1d4ed8;
-}
-
-.action-btn.primary:hover {
-    background: #1d4ed8;
 }
 
 .normal-actions {
@@ -286,22 +322,22 @@ body {
 }
 
 .header-btn {
-    background: var(--nav-btn-bg);
-    border: 1px solid var(--nav-btn-border);
-    color: var(--nav-text);
-    border-radius: 8px;
-    cursor: pointer;
-    transition: 0.15s ease;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 16px;
-    white-space: nowrap;
-}
+     background: var(--header-btn-bg);
+     border: 1px solid var(--header-btn-border);
+     color: var(--header-btn-text);
+     border-radius: 8px;
+     cursor: pointer;
+     transition: 0.15s ease;
+     font-weight: 500;
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     padding: 8px 16px;
+     white-space: nowrap;
+ }
 
 .header-btn:hover {
-    background: var(--nav-btn-hover);
+    background: var(--header-btn-hover-bg);
 }
 
 .header-btn.back {
@@ -353,6 +389,7 @@ body {
     text-decoration: line-through;
     opacity: 0.6;
 }
+
 /* ============================================================
    ITEM TABLE
 ============================================================ */
@@ -405,10 +442,11 @@ body {
     opacity: 1;
 }
 
+/* Tabellen-Buttons (über Variablen gesteuert) */
 .tbl-btn {
-    background: var(--nav-btn-bg);
-    border: 1px solid var(--nav-btn-border);
-    color: var(--nav-text);
+    background: var(--tbl-btn-bg);
+    border: 1px solid var(--tbl-btn-border);
+    color: var(--tbl-btn-text);
     border-radius: 6px;
     cursor: pointer;
     transition: 0.15s ease-in-out;
@@ -420,12 +458,17 @@ body {
 }
 
 .tbl-btn:hover {
-    background: var(--nav-btn-hover);
+    background: var(--tbl-btn-hover-bg);
 }
 
 .tbl-btn.check { font-size: 1rem; }
-.tbl-btn.edit { font-size: 1.1rem; }
-.tbl-btn.delete { font-size: 1.1rem; color: #ff6b6b; }
+.tbl-btn.edit  { font-size: 1.1rem; }
+.tbl-btn.delete {
+    font-size: 1.1rem;
+    background: var(--tbl-btn-bg);
+    border-color: var(--tbl-btn-border);
+    color: var(--tbl-btn-text);
+}
 
 .checked .tbl-btn.check {
     background: #2e7d32 !important;
@@ -440,9 +483,9 @@ body {
 }
 
 .quantity-control button {
-    background: var(--nav-btn-bg);
-    border: 1px solid var(--nav-btn-border);
-    color: var(--nav-text);
+    background: var(--tbl-btn-bg);
+    border: 1px solid var(--tbl-btn-border);
+    color: var(--tbl-btn-text);
     width: 28px;
     height: 28px;
     border-radius: 50%;
@@ -456,7 +499,7 @@ body {
 }
 
 .quantity-control button:hover:not(:disabled) {
-    background: var(--nav-btn-hover);
+    background: var(--tbl-btn-hover-bg);
 }
 
 .quantity-control button:disabled {
@@ -471,9 +514,6 @@ body {
 }
 
 .table-add-btn {
-    background: var(--nav-btn-bg);
-    border: 1px solid var(--nav-btn-border);
-    color: var(--nav-text);
     padding: 10px 18px;
     border-radius: 8px;
     cursor: pointer;
@@ -483,10 +523,63 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    border: 1px solid transparent;
 }
 
-.table-add-btn:hover {
-    background: var(--nav-btn-hover);
+/* Sortier-Buttons: text-only, themeabhängig */
+.tbh-btn-sort {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent !important;
+    border: none !important;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--text) !important;
+    padding: 0;
+}
+
+.sort-icon {
+    font-size: 0.9rem;
+    opacity: 0.7;
+}
+
+.sort-icon.neutral::before {
+    content: "⇅";
+}
+
+.sort-icon.asc::before {
+    content: "▲";
+}
+
+.sort-icon.desc::before {
+    content: "▼";
+}
+
+.sort-icon {
+    font-size: 0.9rem;
+    opacity: 0.7;
+    color: inherit;
+}
+
+/* ============================================================
+   BRAND-PRIMARY BUTTONS (Light & Dark via Variablen)
+============================================================ */
+.action-btn.primary,
+.table-add-btn,
+.header-btn.primary,
+.modal-actions button[type="submit"] {
+    background: var(--primary-btn-bg);
+    border: 1px solid var(--primary-btn-border);
+    color: var(--primary-btn-text);
+}
+
+.action-btn.primary:hover,
+.table-add-btn:hover,
+.header-btn.primary:hover,
+.modal-actions button[type="submit"]:hover {
+    background: var(--primary-btn-hover-bg);
+    border-color: var(--primary-btn-border);
 }
 
 /* ============================================================
@@ -583,15 +676,6 @@ body {
 
 .modal-actions .cancel:hover {
     background: #5a6676;
-}
-
-.modal-actions button[type="submit"] {
-    background: var(--nav-btn-bg);
-    color: var(--nav-text);
-}
-
-.modal-actions button[type="submit"]:hover {
-    background: var(--nav-btn-hover);
 }
 
 .modal-actions .delete {

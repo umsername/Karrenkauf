@@ -6,6 +6,8 @@ import unitsData from '@/assets/data/units.json'
 // Grundzustand
 const lists = computed(() => DS.getData().lists)
 const expandedListId = ref(null)
+const sortColumn = ref(null)
+const sortDirection = ref('neutral')  // neutral | asc | desc
 
 // Zustände für Modals
 const isEditModalOpen = ref(false)
@@ -138,6 +140,38 @@ function exportSelectedLists() {
   DS.exportMultipleLists(selectedLists.value)
 }
 
+function toggleSort(column) {
+  if (sortColumn.value !== column) {
+    sortColumn.value = column
+    sortDirection.value = 'asc'
+  } else {
+    if (sortDirection.value === 'asc') sortDirection.value = 'desc'
+    else if (sortDirection.value === 'desc') sortDirection.value = 'neutral'
+    else sortDirection.value = 'asc'
+  }
+}
+
+function sortDirectionFor(column) {
+  if (sortColumn.value !== column) return 'neutral'
+  return sortDirection.value
+}
+
+const sortedItems = computed(() => {
+  if (!expandedListId.value) return []
+
+  const items = [...lists.value[expandedListId.value].items]
+  if (sortDirection.value === 'neutral' || !sortColumn.value) return items
+
+  return items.sort((a, b) => {
+    const vA = a[sortColumn.value]
+    const vB = b[sortColumn.value]
+
+    if (vA < vB) return sortDirection.value === 'asc' ? -1 : 1
+    if (vA > vB) return sortDirection.value === 'asc' ? 1 : -1
+    return 0
+  })
+})
+
 </script>
 
 <template>
@@ -160,16 +194,16 @@ function exportSelectedLists() {
         <thead>
           <tr>
             <th class="col-actions-header">Aktionen</th>
-            <th>Name</th>
+            <th><button class="tbh-btn-sort" @click="toggleSort('name')"> Name <span class="sort-icon" :class="sortDirectionFor('name')"></span></button></th>
             <th>Menge</th>
             <th>Einheit</th>
-            <th>Preis</th>
-            <th>Kategorie</th>
+            <th><button class="tbh-btn-sort" @click="toggleSort('preis')"> Preis <span class="sort-icon" :class="sortDirectionFor('preis')"></span></button></th>
+            <th><button class="tbh-btn-sort" @click="toggleSort('category')"> Kategorie <span class="sort-icon" :class="sortDirectionFor('category')"></span></button></th>
             <th>Beschreibung</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="item in lists[expandedListId].items" :key="item.id" :class="{ checked: item.checked }">
+          <tr v-for="item in sortedItems" :key="item.id" :class="{ checked: item.checked }">
             <td class="actions-cell">
               <button class="tbl-btn check" @click.stop="toggleChecked(item)">✔</button>
               <button class="tbl-btn edit" @click.stop="openEditModal(item)">✏️</button>
