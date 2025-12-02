@@ -1,6 +1,9 @@
 // später in anderen Projekten importieren mit -- import { createList } from "./dataStore.js";
 // Mithilfe von export function -- können wir die Funktionen in anderen Dateien importieren und verwenden
+import { reactive } from "vue"
 
+let data = reactive({ lists: {} })
+loadData()
 
 // --UTILS--
 // Liefert eine UUID 
@@ -15,7 +18,6 @@ export function nowMs() {
 
 
 // legt leeres data Objekt an oder lädt bestehendes
-let data = { lists: {} };
 loadData();
 
 // Neue Liste erstellen
@@ -51,6 +53,7 @@ export function createItem(name, beschreibung, menge, unit, preis, category) {
         preis,
         done: false,
         category,
+        checked:false,
         createdAt: timestamp,
         updatedAt: timestamp
     };
@@ -68,12 +71,9 @@ export function addItemsToList(listId, itemsArray) {
     itemsArray.forEach(item => addItemToList(listId, item));
 }
 
-
-
-
 // CRUD Operationen - Create Read Update Delete
 
-//file local speichern
+// file local speichern
 export function saveData() {
     localStorage.setItem("shoppingData", JSON.stringify(data));
 }
@@ -81,6 +81,22 @@ export function saveData() {
 // Löscht eine Liste anhand der ID
 export function deleteList(id) {
     delete data.lists[id];
+    saveData();
+}
+
+// Setzt das Listen-Objekt auf ein leeres Objekt zurück
+export function deleteAllLists() {
+    data.lists = {};
+    saveData();
+}
+
+// Aktualisiert die Daten einer Liste (z.B. den Namen)
+export function updateList(id, newData) {
+    const list = data.lists[id];
+    if (!list) return;
+
+    Object.assign(list, newData); // Fügt die neuen Daten zum Listenobjekt hinzu
+    list.updatedAt = nowMs();
     saveData();
 }
 
@@ -107,16 +123,14 @@ export function deleteItem(listId, itemId) {
 // Daten aus dem localStorage laden
 export function loadData() {
     const raw = localStorage.getItem("shoppingData");
-    if (!raw) {
-        data = { lists: {} };
-        return;
-    }
+    if (!raw) return
 
     try {
-        data = JSON.parse(raw);
+        const parsed = JSON.parse(raw)
+        data.lists = parsed.lists || {}
     } catch (e) {
-        console.error("Fehler beim Laden:", e);
-        data = { lists: {} };
+        console.error("Fehler beim Laden:", e)
+        data.lists = {}
     }
 }
 
@@ -144,12 +158,28 @@ function downloadJSON(filename, dataObj) {
     URL.revokeObjectURL(url);
 }
 
+// Export mehrere Listen anhand ID
+export function exportMultipleLists(selectedSet){
+    const exportObj = { lists: {} };
+    for (const listId of selectedSet){
+        const list = data.lists[listId];
+        if (list) {
+            exportObj.lists[listId] = list;
+        }
+    }
+    downloadJSON("multiple-lists-export.json", exportObj);
+}
+
 // Export einer Liste als JSON Datei
 export function exportList(listId) {
     const list = data.lists[listId];
     if (!list) return false;
-
-    downloadJSON(`list-${listId}.json`, list);
+    const exportObj = {
+        lists: {
+            [listId]: list
+        }
+    };
+    downloadJSON(`list-${listId}.json`, exportObj);
     return true;
 }
 
@@ -185,14 +215,12 @@ export async function importAllAdd(file) {
 
     for (let id in imported.lists) {
         let list = imported.lists[id];
-
         // Kollision verhindern
         let newId = id;
         if (data.lists[id]) {
             newId = uuid();
             list.id = newId;
         }
-
         data.lists[newId] = list;
     }
 
@@ -206,13 +234,10 @@ export async function importAllRestore(file) {
     const imported = JSON.parse(text);
 
     if (!imported.lists) throw new Error("Ungültiges Format.");
-
     // localStorage komplett löschen
     localStorage.removeItem("shoppingData");
-
     // DataStore ersetzen
-    data = imported;
-
+    data.lists = imported.lists;
     // neu speichern
     saveData();
 
