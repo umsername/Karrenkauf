@@ -1,7 +1,7 @@
 # Initialisierung
 In einem Ordner deiner Wahl das **Terminal öffnen** (*Netzlaufwerke* gehen *nicht*!)<br/>
 Zuerst mit **git clone https://github.com/umsername/Karrenkauf.git** Projekt downloaden<br/>
-Danach mit **cd Karrenkauf** in das Projektverzeichniss navigieren. <br/>
+Danach mit **cd Karrenkauf/Frontend** in das Projektverzeichniss navigieren. <br/>
 
 Einmal mit **npm install** alle Abhängigkeiten installieren.<br/>
 Mit **npm run dev** wird ein Webserver gestartet und ein Localhost Link generiert.<br/>
