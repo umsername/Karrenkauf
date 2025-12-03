@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 public class JWTUtil {
 
     private final Key key;
+    public static Date expDate;
 
     public JWTUtil() {
         // generiert automatisch einen sicheren HS256 Key
@@ -20,11 +21,16 @@ public class JWTUtil {
     }
 
     public String generateToken(String username) {
-        return Jwts.builder()
+    	this.expDate = new Date(System.currentTimeMillis() + 1000 * 60 * 60);
+    	return Jwts.builder()
                 .setSubject(username)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 Stunde
+                .setExpiration(this.expDate) // 1 Stunde
                 .signWith(key)
                 .compact();
+    }
+    
+    public static long getExpirationDate() {
+        return expDate.getTime(); // milliseconds since epoch
     }
 }
