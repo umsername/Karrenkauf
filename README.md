@@ -1,5 +1,11 @@
-# Karenkauf
-ein asw Projekt.
+# Karrenkauf
+das coolste asw Projekt.
+
+## Frontend
+
+### Init
+1. Once cloned, run ```npm install``` to install all dependencies.
+2. ```npm run dev``` in order to actually run it.
 
 ## Backend API Endpoints
 
@@ -43,3 +49,8 @@ Either returns status unknown token, valid token or expired token.
 Token entries are stored in the tokens table in backend.db.
 Expiration date set to 1 hour, should be sufficient.
 
+## TODO
+1. Actual password hashing 💀
+2. Populating list table (table already exists in backend.db)
+3. Proper login dialog in frontend?
+4. All that sync list stuff
