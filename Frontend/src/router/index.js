@@ -12,6 +12,9 @@ import Help from '@/views/Help.vue'
 import Feedback from '@/views/Feedback.vue'
 import Credits from '@/views/Credits.vue'
 import LegalNotice from '@/views/LegalNotice.vue'
+import Login from '@/views/Login.vue'
+import Register from '@/views/Register.vue'
+import ForgotPassword from '@/views/ForgotPassword.vue'
 
 export default createRouter({
     history: createWebHistory(),
@@ -29,5 +32,8 @@ export default createRouter({
         { path: '/feedback', component: Feedback },
         { path: '/credits', component: Credits },
         { path: '/legal-notice', component: LegalNotice },
+        { path: '/login', component: Login},
+        { path: '/register', component: Register},
+        { path: '/forgot-password', component: ForgotPassword},
     ]
 })

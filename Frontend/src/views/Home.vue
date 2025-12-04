@@ -3,6 +3,19 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import * as DS from '@/store/dataStore.js'
 import unitsData from '@/assets/data/units.json'
 
+import {
+  PencilSquareIcon,
+  TrashIcon,
+  PlusIcon,
+  ArrowDownTrayIcon,
+  CheckIcon,
+  MinusIcon,
+  ChevronLeftIcon,
+  ChevronUpDownIcon,
+  ChevronUpIcon,
+  ChevronDownIcon
+} from '@heroicons/vue/24/outline'
+
 // Grundzustand
 const lists = computed(() => DS.getData().lists)
 const expandedListId = ref(null)
@@ -180,12 +193,29 @@ const sortedItems = computed(() => {
        ============================================================ -->
   <div v-if="expandedListId && lists[expandedListId]" class="expanded">
     <div class="expanded-header">
-      <button class="header-btn back" @click="resetToOverview">← Zurück</button>
-      <h2 class="expanded-title">{{ lists[expandedListId].name }} ({{ lists[expandedListId].items.length }})</h2>
+      <button class="header-btn back" @click="resetToOverview">
+        <ChevronLeftIcon class="icon" />
+        <span>Zurück</span>
+      </button>
+
+      <h2 class="expanded-title">
+        {{ lists[expandedListId].name }} ({{ lists[expandedListId].items.length }})
+      </h2>
+
       <div class="header-actions">
-        <button @click="openRenameListModal" class="header-btn">✏️ Umbenennen</button>
-        <button class="header-btn" @click="DS.exportList(expandedListId)">⬇️ Export</button>
-        <button @click="openDeleteConfirm" class="header-btn delete-list-btn">🗑️</button>
+        <button @click="openRenameListModal" class="header-btn">
+          <PencilSquareIcon class="icon" />
+          <span>Umbenennen</span>
+        </button>
+
+        <button class="header-btn" @click="DS.exportList(expandedListId)">
+          <ArrowDownTrayIcon class="icon" />
+          <span>Export</span>
+        </button>
+
+        <button @click="openDeleteConfirm" class="header-btn delete-list-btn">
+          <TrashIcon class="icon" />
+        </button>
       </div>
     </div>
 
@@ -194,44 +224,135 @@ const sortedItems = computed(() => {
         <thead>
           <tr>
             <th class="col-actions-header">Aktionen</th>
-            <th><button class="tbh-btn-sort" @click="toggleSort('name')"> Name <span class="sort-icon" :class="sortDirectionFor('name')"></span></button></th>
+
+            <!-- NAME SORT -->
+            <th>
+              <button class="tbh-btn-sort" @click="toggleSort('name')">
+                Name
+                <span>
+                  <ChevronUpDownIcon
+                    v-if="sortDirectionFor('name') === 'neutral'"
+                    class="icon-sm"
+                  />
+                  <ChevronUpIcon
+                    v-else-if="sortDirectionFor('name') === 'asc'"
+                    class="icon-sm"
+                  />
+                  <ChevronDownIcon
+                    v-else
+                    class="icon-sm"
+                  />
+                </span>
+              </button>
+            </th>
+
             <th>Menge</th>
             <th>Einheit</th>
-            <th><button class="tbh-btn-sort" @click="toggleSort('preis')"> Preis <span class="sort-icon" :class="sortDirectionFor('preis')"></span></button></th>
-            <th><button class="tbh-btn-sort" @click="toggleSort('category')"> Kategorie <span class="sort-icon" :class="sortDirectionFor('category')"></span></button></th>
+
+            <!-- PREIS SORT -->
+            <th>
+              <button class="tbh-btn-sort" @click="toggleSort('preis')">
+                Preis
+                <span>
+                  <ChevronUpDownIcon
+                    v-if="sortDirectionFor('preis') === 'neutral'"
+                    class="icon-sm"
+                  />
+                  <ChevronUpIcon
+                    v-else-if="sortDirectionFor('preis') === 'asc'"
+                    class="icon-sm"
+                  />
+                  <ChevronDownIcon
+                    v-else
+                    class="icon-sm"
+                  />
+                </span>
+              </button>
+            </th>
+
+            <!-- KATEGORIE SORT -->
+            <th>
+              <button class="tbh-btn-sort" @click="toggleSort('category')">
+                Kategorie
+                <span>
+                  <ChevronUpDownIcon
+                    v-if="sortDirectionFor('category') === 'neutral'"
+                    class="icon-sm"
+                  />
+                  <ChevronUpIcon
+                    v-else-if="sortDirectionFor('category') === 'asc'"
+                    class="icon-sm"
+                  />
+                  <ChevronDownIcon
+                    v-else
+                    class="icon-sm"
+                  />
+                </span>
+              </button>
+            </th>
+
             <th>Beschreibung</th>
           </tr>
         </thead>
+
         <tbody>
-          <tr v-for="item in sortedItems" :key="item.id" :class="{ checked: item.checked }">
+          <tr
+            v-for="item in sortedItems"
+            :key="item.id"
+            :class="{ checked: item.checked }"
+          >
             <td class="actions-cell">
-              <button class="tbl-btn check" @click.stop="toggleChecked(item)">✔</button>
-              <button class="tbl-btn edit" @click.stop="openEditModal(item)">✏️</button>
-              <button class="tbl-btn delete" @click.stop="deleteItem(item)">🗑</button>
+              <button class="tbl-btn check" @click.stop="toggleChecked(item)">
+                <CheckIcon class="icon-sm" />
+              </button>
+
+              <button class="tbl-btn edit" @click.stop="openEditModal(item)">
+                <PencilSquareIcon class="icon-sm" />
+              </button>
+
+              <button class="tbl-btn delete" @click.stop="deleteItem(item)">
+                <TrashIcon class="icon-sm" />
+              </button>
             </td>
+
             <td>{{ item.name }}</td>
+
             <td>
               <div class="quantity-control">
-                <button @click.stop="decreaseQuantity(item)" :disabled="item.menge === 0">-</button>
+                <button @click.stop="decreaseQuantity(item)" :disabled="item.menge === 0">
+                  <MinusIcon class="icon-sm" />
+                </button>
+
                 <span>{{ item.menge }}</span>
-                <button @click.stop="increaseQuantity(item)">+</button>
+
+                <button @click.stop="increaseQuantity(item)">
+                  <PlusIcon class="icon-sm" />
+                </button>
               </div>
             </td>
+
             <td>{{ unitLabel(item.unit) }}</td>
             <td>{{ formatPrice(item.preis) }}</td>
             <td>{{ item.category }}</td>
             <td>{{ item.beschreibung }}</td>
           </tr>
         </tbody>
+
         <tfoot>
-        <tr>
-          <td colspan="2" class="total-price-label">Gesamtpreis:</td>
-          <td colspan="2" class="total-price-value">{{ formatPrice(calculateTotalPrice(lists[expandedListId])) }}</td>
-          <td colspan="2"></td>
-          <td class="add-item-cell">
-            <button class="table-add-btn" @click="openNewItemModal">➕ Neues Item</button>
-          </td>
-        </tr>
+          <tr>
+            <td colspan="2" class="total-price-label">Gesamtpreis:</td>
+            <td colspan="2" class="total-price-value">
+              {{ formatPrice(calculateTotalPrice(lists[expandedListId])) }}
+            </td>
+            <td colspan="2"></td>
+
+            <td class="add-item-cell">
+              <button class="table-add-btn" @click="openNewItemModal">
+                <PlusIcon class="icon-sm" />
+                Neues Item
+              </button>
+            </td>
+          </tr>
         </tfoot>
       </table>
     </div>
@@ -244,39 +365,93 @@ const sortedItems = computed(() => {
     <div class="overview-container">
       <div class="global-actions">
         <div v-if="!isSelectionMode" class="normal-actions">
-          <button @click="openNewListModal" class="action-btn primary">➕ Neue Liste</button>
-          <button v-if="Object.keys(lists).length > 0" @click="toggleSelectionMode" class="action-btn">✏️ Bearbeiten</button>
+          <button @click="openNewListModal" class="action-btn primary">
+            <PlusIcon class="icon" />
+            <span>Neue Liste</span>
+          </button>
+
+          <button
+            v-if="Object.keys(lists).length > 0"
+            @click="toggleSelectionMode"
+            class="action-btn"
+          >
+            <PencilSquareIcon class="icon" />
+            <span>Bearbeiten</span>
+          </button>
         </div>
+
         <div v-else class="selection-actions">
           <button @click="selectAllLists">Alle auswählen</button>
-          <button @click="deselectAllLists" :disabled="selectedLists.size === 0">Auswahl aufheben</button>
-          <button @click="exportSelectedLists" :disabled="selectedLists.size === 0">Exportieren</button>
-          <button @click="deleteSelectedLists" :disabled="selectedLists.size === 0" class="delete">Löschen</button>
-          <button @click="toggleSelectionMode" class="cancel">Abbrechen</button>
+          <button @click="deselectAllLists" :disabled="selectedLists.size === 0">
+            Auswahl aufheben
+          </button>
+
+          <button @click="exportSelectedLists" :disabled="selectedLists.size === 0">
+            <ArrowDownTrayIcon class="icon-sm" />
+            <span>Exportieren</span>
+          </button>
+
+          <button
+            @click="deleteSelectedLists"
+            :disabled="selectedLists.size === 0"
+            class="delete"
+          >
+            <TrashIcon class="icon-sm" />
+            <span>Löschen</span>
+          </button>
+
+          <button @click="toggleSelectionMode" class="cancel">
+            Abbrechen
+          </button>
         </div>
       </div>
+
       <div class="list-grid">
-        <p v-if="Object.keys(lists).length === 0" class="text-center w-full">Keine Listen vorhanden. Erstelle eine neue!</p>
-        <div v-for="(list, id) in lists" :key="id" class="list-card" :class="{ 'is-selected': selectedLists.has(id) }" @click="isSelectionMode ? toggleListSelection(id) : (expandedListId = id)">
+        <p v-if="Object.keys(lists).length === 0" class="text-center w-full">
+          Keine Listen vorhanden. Erstelle eine neue!
+        </p>
+
+        <div
+          v-for="(list, id) in lists"
+          :key="id"
+          class="list-card"
+          :class="{ 'is-selected': selectedLists.has(id) }"
+          @click="isSelectionMode ? toggleListSelection(id) : (expandedListId = id)"
+        >
           <div v-if="isSelectionMode" class="selection-checkbox">
             <div class="checkbox-visual">
-              {{ selectedLists.has(id) ? '✔' : '' }}
+              <CheckIcon v-if="selectedLists.has(id)" class="icon-sm" />
             </div>
           </div>
+
           <div class="list-card-header">
             {{ list.name }} ({{ list.items.length }})
           </div>
+
           <div class="list-card-body">
             <ul class="preview-list">
-              <li v-for="item in previewItems(list)" :key="item.id" :class="{ 'checked-item': item.checked }">
+              <li
+                v-for="item in previewItems(list)"
+                :key="item.id"
+                :class="{ 'checked-item': item.checked }"
+              >
                 <div class="preview-item-layout">
                   <span class="item-name">• {{ item.name }}</span>
-                  <span class="item-quantity" v-if="item.menge > 0"> {{ item.menge }} {{ unitLabel(item.unit) }}</span>
+                  <span
+                    class="item-quantity"
+                    v-if="item.menge > 0"
+                  >
+                    {{ item.menge }} {{ unitLabel(item.unit) }}
+                  </span>
                 </div>
               </li>
             </ul>
-            <p v-if="list.items.length > 5" class="preview-more">… und {{ list.items.length - 5 }} weitere</p>
+
+            <p v-if="list.items.length > 5" class="preview-more">
+              … und {{ list.items.length - 5 }} weitere
+            </p>
           </div>
+
           <div class="list-card-footer">
             <span>Gesamtpreis:</span>
             <strong>{{ formatPrice(calculateTotalPrice(list)) }}</strong>
@@ -289,6 +464,9 @@ const sortedItems = computed(() => {
   <!-- ============================================================
        MODALS
        ============================================================ -->
+
+  <!-- UUID: IDENTICAL TO YOUR VERSION, NO ICON CHANGES NEEDED -->
+
   <div v-if="isEditModalOpen" class="modal-backdrop" @click.self="isEditModalOpen = false">
     <div class="modal">
       <h2 class="modal-title">{{ editableItem.id ? 'Item bearbeiten' : 'Neues Item' }}</h2>
@@ -297,32 +475,55 @@ const sortedItems = computed(() => {
           <label for="name">Name</label>
           <input v-model="editableItem.name" id="name" type="text" required />
         </div>
+
         <div class="form-group">
           <label for="menge">Menge</label>
           <input v-model.number="editableItem.menge" id="menge" type="number" min="0" />
         </div>
+
         <div class="form-group">
           <label for="einheit">Einheit</label>
           <select v-model="editableItem.unit" id="einheit" required>
             <option value="" disabled>Einheit auswählen...</option>
-            <option v-for="u in unitsData.units" :key="u.value" :value="u.value">{{ u.label }}</option>
+            <option
+              v-for="u in unitsData.units"
+              :key="u.value"
+              :value="u.value"
+            >
+              {{ u.label }}
+            </option>
           </select>
         </div>
+
         <div class="form-group">
           <label for="preis">Preis (€)</label>
-          <input v-model.number="editableItem.preis" id="preis" type="number" min="0" step="0.01"/>
+          <input
+            v-model.number="editableItem.preis"
+            id="preis"
+            type="number"
+            min="0"
+            step="0.01"
+          />
         </div>
+
         <div class="form-group">
           <label for="kategorie">Kategorie</label>
-          <input v-model="editableItem.category" id="kategorie" type="text"/>
+          <input v-model="editableItem.category" id="kategorie" type="text" />
         </div>
+
         <div class="form-group">
           <label for="beschreibung">Beschreibung</label>
-          <input v-model="editableItem.beschreibung" id="beschreibung" type="text"/>
+          <input v-model="editableItem.beschreibung" id="beschreibung" type="text" />
         </div>
+
         <div class="modal-actions">
-          <button type="button" class="cancel" @click="isEditModalOpen = false">Abbrechen</button>
-          <button type="submit">{{ editableItem.id ? 'Speichern' : 'Hinzufügen' }}</button>
+          <button type="button" class="cancel" @click="isEditModalOpen = false">
+            Abbrechen
+          </button>
+
+          <button type="submit">
+            {{ editableItem.id ? 'Speichern' : 'Hinzufügen' }}
+          </button>
         </div>
       </form>
     </div>
@@ -331,9 +532,13 @@ const sortedItems = computed(() => {
   <div v-if="isDeleteConfirmOpen" class="modal-backdrop" @click.self="isDeleteConfirmOpen = false">
     <div class="modal">
       <h2 class="modal-title">Liste löschen?</h2>
-      <p>Möchtest du die Liste "{{ lists[expandedListId]?.name }}" wirklich endgültig löschen?</p>
+      <p>
+        Möchtest du die Liste "{{ lists[expandedListId]?.name }}" wirklich endgültig löschen?
+      </p>
+
       <div class="modal-actions">
         <button class="cancel" @click="isDeleteConfirmOpen = false">Abbrechen</button>
+
         <button class="delete" @click="confirmDeleteList">Löschen</button>
       </div>
     </div>
@@ -342,13 +547,18 @@ const sortedItems = computed(() => {
   <div v-if="isNewListModalOpen" class="modal-backdrop" @click.self="isNewListModalOpen = false">
     <div class="modal">
       <h2 class="modal-title">Neue Einkaufsliste</h2>
+
       <form @submit.prevent="createNewList" class="modal-form">
         <div class="form-group">
           <label for="new-list-name">Name der Liste</label>
-          <input v-model="newListName" id="new-list-name" type="text" required/>
+          <input v-model="newListName" id="new-list-name" type="text" required />
         </div>
+
         <div class="modal-actions">
-          <button type="button" class="cancel" @click="isNewListModalOpen = false">Abbrechen</button>
+          <button type="button" class="cancel" @click="isNewListModalOpen = false">
+            Abbrechen
+          </button>
+
           <button type="submit">Erstellen</button>
         </div>
       </form>
@@ -358,13 +568,18 @@ const sortedItems = computed(() => {
   <div v-if="isRenameListModalOpen" class="modal-backdrop" @click.self="isRenameListModalOpen = false">
     <div class="modal">
       <h2 class="modal-title">Liste umbenennen</h2>
+
       <form @submit.prevent="renameList" class="modal-form">
         <div class="form-group">
           <label for="rename-list-name">Neuer Name der Liste</label>
           <input v-model="newListName" id="rename-list-name" type="text" required />
         </div>
+
         <div class="modal-actions">
-          <button type="button" class="cancel" @click="isRenameListModalOpen = false">Abbrechen</button>
+          <button type="button" class="cancel" @click="isRenameListModalOpen = false">
+            Abbrechen
+          </button>
+
           <button type="submit">Umbenennen</button>
         </div>
       </form>
