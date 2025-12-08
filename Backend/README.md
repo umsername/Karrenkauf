@@ -1,12 +1,3 @@
-# Karrenkauf
-das coolste asw Projekt.
-
-## Frontend
-
-### Init
-1. Once cloned, run ```npm install``` to install all dependencies.
-2. ```npm run dev``` in order to actually run it.
-
 ## Backend API Endpoints
 
 ### Quick Test 😊
@@ -58,7 +49,7 @@ Sync lists from the client. Existing lists in the database will be overwritten i
 POST /api/lists/sync
 
 **Body:** JSON object in the format:
-```json
+```
 {
     "lists": {
         "listId1": {
@@ -94,7 +85,7 @@ Retrieve all lists stored in the database.
 GET /api/lists
 
 **Body:** 
-```json
+```
 fetch("http://localhost:8080/api/lists")
   .then(res => res.json())
   .then(console.log)
@@ -108,7 +99,7 @@ Retrieve a specific list by its ID.
 GET /api/lists/{id}
 
 **Body:** 
-```json
+```
 fetch("http://localhost:8080/api/lists/listId1")
   .then(res => res.json())
   .then(console.log)
