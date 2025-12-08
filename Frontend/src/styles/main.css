@@ -931,3 +931,110 @@ body {
 .table-add-container {
     display: none;
 }
+
+/* ============================================================
+   AUTH PAGES (Login, Register, Forgot Password)
+============================================================ */
+.auth-wrapper {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.auth-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 4px 12px var(--card-shadow);
+    padding: 35px 40px;
+    width: min(420px, 90%);
+}
+
+.auth-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 25px;
+    text-align: center;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.auth-form label {
+    font-weight: 500;
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.auth-input {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
+}
+
+.auth-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.auth-btn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.15s ease;
+    background: var(--primary-btn-bg);
+    border: 1px solid var(--primary-btn-border);
+    color: var(--primary-btn-text);
+}
+
+.auth-btn:hover {
+    background: var(--primary-btn-hover-bg);
+}
+
+.auth-links {
+    margin-top: 18px;
+    text-align: center;
+    font-size: 0.9rem;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.auth-links a {
+    color: var(--primary-btn-text);
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+
+.icon {
+    width: 20px;
+    height: 20px;
+    stroke-width: 1.8;
+    color: currentColor;
+  }  
+
+.profile-menu-item .icon,
+.nav-btn .icon {
+  color: currentColor;
+}
+
+.darkmode-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
