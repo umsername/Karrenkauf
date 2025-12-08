@@ -1038,3 +1038,20 @@ body {
     align-items: center;
     gap: 6px;
   }
+
+.selection-actions button .icon,
+.selection-actions button .icon-sm,
+.selection-actions .tbl-btn .icon-sm {
+    width: 18px !important;
+    height: 18px !important;
+    stroke-width: 1.6;
+}
+
+.item-table td:nth-child(2),
+.item-table td:nth-child(7),
+.item-table th:nth-child(2),
+.item-table th:nth-child(7) {
+    white-space: normal !important;
+    word-break: break-word;
+    max-width: 300px;
+}
