@@ -4,8 +4,10 @@ das coolste asw Projekt.
 ## Frontend
 
 ### Init
-1. Once cloned, run ```npm install``` to install all dependencies.
-2. ```npm run dev``` in order to actually run it.
+1. Once cloned, Change the Directory to ```Karrenkauf/Frontend```
+2. run ```npm install``` to install all dependencies. NOTE: NODEJS MUST BE INSTALLED!
+3. ```npm run dev``` in order to actually run it.
+4. follow the localhost url the the website
 
 ## Backend API Endpoints
 
