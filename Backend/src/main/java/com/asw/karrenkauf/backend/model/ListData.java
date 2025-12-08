@@ -1,46 +1,54 @@
 package com.asw.karrenkauf.backend.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import java.util.*;
 
 @Entity
-@Table(name = "list_data")
+@Table(name = "lists")
 public class ListData {
 
     @Id
-    private String listId;
+    private String id; // UUID as string
 
-    private String userId;
-    private String listOwner; // CSV of UUIDs
-    private String data;      // JSON blob
+    private String name;
+    private String owner;
     private long createdAt;
     private long updatedAt;
 
+    @OneToMany(mappedBy = "list", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ListItem> items = new ArrayList<>();
+
     public ListData() {}
 
-    public ListData(String listId, String userId, String listOwner, String data) {
-        this.listId = listId;
-        this.userId = userId;
-        this.listOwner = listOwner;
-        this.data = data;
-        this.createdAt = System.currentTimeMillis();
-        this.updatedAt = System.currentTimeMillis();
+    public ListData(String id, String name, String owner, long createdAt, long updatedAt) {
+        this.id = id;
+        this.name = name;
+        this.owner = owner;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
     }
 
- // Getters
-    public String getListId() { return listId; }
-    public String getUserId() { return userId; }
-    public String getListOwner() { return listOwner; }
-    public String getData() { return data; }
-    public long getCreatedAt() { return createdAt; }
-    public long getUpdatedAt() { return updatedAt; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
-    // Setters
-    public void setListId(String listId) { this.listId = listId; }
-    public void setUserId(String userId) { this.userId = userId; }
-    public void setListOwner(String listOwner) { this.listOwner = listOwner; }
-    public void setData(String data) { this.data = data; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    public String getOwner() { return owner; }
+    public void setOwner(String owner) { this.owner = owner; }
+
+    public long getCreatedAt() { return createdAt; }
     public void setCreatedAt(long createdAt) { this.createdAt = createdAt; }
+
+    public long getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(long updatedAt) { this.updatedAt = updatedAt; }
+
+    public List<ListItem> getItems() { return items; }
+    public void setItems(List<ListItem> items) { this.items = items; }
+
+    public void addItem(ListItem item) {
+        item.setList(this);
+        items.add(item);
+        this.updatedAt = System.currentTimeMillis();
+    }
 }
