@@ -55,10 +55,20 @@ const previewItems = (list) => list.items.slice(0, 5)
 // Gesamtpreis-Berechnung
 const calculateTotalPrice = (list) => {
   if (!list || !list.items) return 0
+
+  // Einheiten, bei denen die Menge nicht multipliziert werden soll
+  const singleUnitPrices = ["g", "kg", "ml", "l"]
+
   return list.items.reduce((total, item) => {
     const price = item.preis || 0
     const quantity = item.menge || 0
-    return total + (price * quantity)
+    const unit = item.unit || ""
+
+    if (singleUnitPrices.includes(unit)) {
+      return total + price // Nur Preis der Packung, nicht multiplizieren
+    } else {
+      return total + price * quantity // normale Berechnung
+    }
   }, 0)
 }
 

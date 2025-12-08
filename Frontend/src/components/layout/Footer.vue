@@ -17,7 +17,7 @@
         <router-link to="/legal-notice">Rechtliche Hinweise</router-link>
       </div>
       
-      <span> Version 0.01 </span>
+      <span> Version 0.27 </span>
     </div>
   </footer>
 </template>
