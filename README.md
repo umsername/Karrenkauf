@@ -9,6 +9,10 @@ das coolste asw Projekt.
 3. ```npm run dev``` in order to actually run it.
 4. follow the localhost url the the website
 
+### Example Lists
+If wanted, import the example.json file over the burger menu to test all functions. 
+
+
 ## Backend API Endpoints
 
 ### Quick Test 😊
