@@ -182,7 +182,7 @@ public class ListController {
         ListData list = listOpt.get();
 
         // Check if current user has access to this list (is owner or list is shared with them)
-        boolean isOwner = list.getOwner().equals(currentUsername);
+        boolean isOwner = list.getOwner() != null && list.getOwner().equals(currentUsername);
         boolean isSharedWithUser = listShareRepo.findByListIdAndSharedWithUsername(listId, currentUsername).isPresent();
         
         if (!isOwner && !isSharedWithUser) {
