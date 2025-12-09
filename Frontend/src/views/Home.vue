@@ -13,7 +13,8 @@ import {
   ChevronLeftIcon,
   ChevronUpDownIcon,
   ChevronUpIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/vue/24/outline'
 
 // Grundzustand
@@ -27,8 +28,12 @@ const isEditModalOpen = ref(false)
 const isDeleteConfirmOpen = ref(false)
 const isNewListModalOpen = ref(false)
 const isRenameListModalOpen = ref(false)
+const isSearchModalOpen = ref(false)
 const newListName = ref('')
 const editableItem = ref(null)
+
+// Suchfunktionalität
+const searchTerm = ref('')
 
 // Zustände für den Auswahlmodus
 const isSelectionMode = ref(false)
@@ -182,7 +187,17 @@ function sortDirectionFor(column) {
 const sortedItems = computed(() => {
   if (!expandedListId.value) return []
 
-  const items = [...lists.value[expandedListId.value].items]
+  let items = [...lists.value[expandedListId.value].items]
+  
+  // Suchfilter anwenden
+  if (searchTerm.value.trim()) {
+    const search = searchTerm.value.toLowerCase().trim()
+    items = items.filter(item => 
+      item.name && item.name.toLowerCase().includes(search)
+    )
+  }
+  
+  // Sortierung anwenden
   if (sortDirection.value === 'neutral' || !sortColumn.value) return items
 
   return items.sort((a, b) => {
@@ -213,6 +228,11 @@ const sortedItems = computed(() => {
       </h2>
 
       <div class="header-actions">
+        <button @click="isSearchModalOpen = true" class="header-btn">
+          <MagnifyingGlassIcon class="icon" />
+          <span>Suchen</span>
+        </button>
+
         <button @click="openRenameListModal" class="header-btn">
           <PencilSquareIcon class="icon" />
           <span>Umbenennen</span>
@@ -593,6 +613,45 @@ const sortedItems = computed(() => {
           <button type="submit">Umbenennen</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Suchmodal -->
+  <div v-if="isSearchModalOpen" class="modal-backdrop" @click.self="isSearchModalOpen = false">
+    <div class="modal">
+      <h2 class="modal-title">Items durchsuchen</h2>
+
+      <div class="modal-form">
+        <div class="form-group">
+          <label for="search-input">Suchbegriff</label>
+          <input 
+            v-model="searchTerm" 
+            id="search-input" 
+            type="text" 
+            placeholder="Name des Items eingeben..."
+            autofocus
+          />
+        </div>
+
+        <p class="search-result-info">
+          {{ sortedItems.length }} Ergebnis(se) gefunden
+        </p>
+
+        <div class="modal-actions">
+          <button type="button" @click="isSearchModalOpen = false">
+            Schließen
+          </button>
+          
+          <button 
+            type="button" 
+            class="cancel" 
+            @click="searchTerm = ''"
+            :disabled="!searchTerm"
+          >
+            Filter zurücksetzen
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>

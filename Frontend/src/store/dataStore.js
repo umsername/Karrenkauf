@@ -29,9 +29,14 @@ export function createList(name, owner) {
         id,
         name,
         owner,
+        ownerId: owner, // Multi-user support: ID des Besitzers
+        sharedWithUserIds: [], // Multi-user support: Liste von User-IDs, mit denen geteilt wurde
         createdAt: timestamp,
         updatedAt: timestamp,
-        items: []
+        lastModifiedTimestamp: timestamp, // Für Synchronisation
+        version: 1, // Für Conflict Resolution
+        items: [],
+        searchIndex: [] // Suchindex (als Array gespeichert, zur Laufzeit als Set)
     };
 
     // Liste wird im data Objekt speichern
@@ -61,8 +66,17 @@ export function createItem(name, beschreibung, menge, unit, preis, category) {
 
 // Fügt ein Item zu einer Liste hinzu
 export function addItemToList(listId, item) {
-    data.lists[listId].items.push(item);
-    data.lists[listId].updatedAt = nowMs();
+    const list = data.lists[listId];
+    list.items.push(item);
+    
+    const timestamp = nowMs();
+    list.updatedAt = timestamp;
+    list.lastModifiedTimestamp = timestamp;
+    list.version = (list.version || 0) + 1;
+    
+    // Suchindex aktualisieren
+    updateSearchIndex(listId);
+    
     saveData();               // ruft saveData Funktion auf um die Daten sofort zu speichern
 }
 
@@ -96,27 +110,48 @@ export function updateList(id, newData) {
     if (!list) return;
 
     Object.assign(list, newData); // Fügt die neuen Daten zum Listenobjekt hinzu
-    list.updatedAt = nowMs();
+    const timestamp = nowMs();
+    list.updatedAt = timestamp;
+    list.lastModifiedTimestamp = timestamp; // Sync-Timestamp aktualisieren
+    list.version = (list.version || 0) + 1; // Version inkrementieren
     saveData();
 }
 
 // Aktualisiert ein Item mithilfe der Liste ID und der Item ID
 // ID der Einkaufslist, ID des zu ersetzenden Item, neue Daten (Item Objekt mit den zu ändernden Werten)
 export function updateItem(listId, itemId, newData) {
-  const item = data.lists[listId].items.find(i => i.id === itemId); //Sucht Item anhand ID
+  const list = data.lists[listId];
+  const item = list.items.find(i => i.id === itemId); //Sucht Item anhand ID
   if (!item) return;
 
   Object.assign(item, newData);
-  item.updatedAt = nowMs();
-  data.lists[listId].updatedAt = nowMs();
+  const timestamp = nowMs();
+  item.updatedAt = timestamp;
+  list.updatedAt = timestamp;
+  list.lastModifiedTimestamp = timestamp;
+  list.version = (list.version || 0) + 1;
+  
+  // Suchindex aktualisieren wenn Name geändert wurde
+  if (newData.name !== undefined) {
+    updateSearchIndex(listId);
+  }
 
   saveData();
 }
 
 // Löscht ein Item anhand der Liste ID und der Item ID
 export function deleteItem(listId, itemId) {
-  data.lists[listId].items = data.lists[listId].items.filter(i => i.id !== itemId);
-  data.lists[listId].updatedAt = nowMs();
+  const list = data.lists[listId];
+  list.items = list.items.filter(i => i.id !== itemId);
+  
+  const timestamp = nowMs();
+  list.updatedAt = timestamp;
+  list.lastModifiedTimestamp = timestamp;
+  list.version = (list.version || 0) + 1;
+  
+  // Suchindex aktualisieren
+  updateSearchIndex(listId);
+  
   saveData();
 }
 
@@ -128,6 +163,8 @@ export function loadData() {
     try {
         const parsed = JSON.parse(raw)
         data.lists = parsed.lists || {}
+        // Migration auf neues Format
+        migrateListsToNewFormat();
     } catch (e) {
         console.error("Fehler beim Laden:", e)
         data.lists = {}
@@ -242,4 +279,99 @@ export async function importAllRestore(file) {
     saveData();
 
     return true;
+}
+
+// --SUCHINDEX-FUNKTIONEN--
+// Konvertiert Set zu Array für JSON-Speicherung
+export function searchIndexSetToArray(indexSet) {
+    return Array.from(indexSet);
+}
+
+// Konvertiert Array zu Set für Laufzeit-Performance
+export function searchIndexArrayToSet(indexArray) {
+    return new Set(indexArray || []);
+}
+
+// Aktualisiert den Suchindex einer Liste basierend auf Item-Namen
+export function updateSearchIndex(listId) {
+    const list = data.lists[listId];
+    if (!list) return;
+    
+    // Index als Set erstellen (für Performance)
+    const indexSet = new Set();
+    
+    list.items.forEach(item => {
+        if (item.name) {
+            // Namen normalisieren und in Tokens aufteilen
+            const normalized = item.name.toLowerCase().trim();
+            // Ganzen Namen hinzufügen
+            indexSet.add(normalized);
+            // Einzelne Wörter hinzufügen
+            normalized.split(/\s+/).forEach(word => {
+                if (word.length > 0) {
+                    indexSet.add(word);
+                }
+            });
+        }
+    });
+    
+    // Als Array speichern
+    list.searchIndex = searchIndexSetToArray(indexSet);
+}
+
+// Sucht Items in einer Liste anhand eines Suchbegriffs
+export function searchItemsInList(listId, searchTerm) {
+    const list = data.lists[listId];
+    if (!list || !searchTerm) return list?.items || [];
+    
+    const normalized = searchTerm.toLowerCase().trim();
+    
+    // Filtere Items, deren Name den Suchbegriff enthält
+    return list.items.filter(item => 
+        item.name && item.name.toLowerCase().includes(normalized)
+    );
+}
+
+// Initialisiert Suchindizes für alle Listen (für Migration)
+export function initializeAllSearchIndexes() {
+    Object.keys(data.lists).forEach(listId => {
+        updateSearchIndex(listId);
+    });
+    saveData();
+}
+
+// Stellt sicher, dass alle Listen die neuen Felder haben (Migration)
+export function migrateListsToNewFormat() {
+    let hasChanges = false;
+    
+    Object.keys(data.lists).forEach(listId => {
+        const list = data.lists[listId];
+        
+        // Fehlende Felder hinzufügen
+        if (!list.ownerId) {
+            list.ownerId = list.owner || 'user';
+            hasChanges = true;
+        }
+        if (!list.sharedWithUserIds) {
+            list.sharedWithUserIds = [];
+            hasChanges = true;
+        }
+        if (!list.lastModifiedTimestamp) {
+            list.lastModifiedTimestamp = list.updatedAt || nowMs();
+            hasChanges = true;
+        }
+        if (!list.version) {
+            list.version = 1;
+            hasChanges = true;
+        }
+        if (!list.searchIndex) {
+            list.searchIndex = [];
+            updateSearchIndex(listId);
+            hasChanges = true;
+        }
+    });
+    
+    if (hasChanges) {
+        saveData();
+    }
 }

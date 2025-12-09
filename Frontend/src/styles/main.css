@@ -658,6 +658,14 @@ body {
     margin-top: 25px;
 }
 
+.search-result-info {
+  text-align: center;
+  color: var(--text);
+  opacity: 0.7;
+  font-size: 0.9rem;
+  margin: 10px 0;
+}
+
 .modal-actions button {
     flex: 1;
     padding: 12px;
@@ -965,6 +973,16 @@ body {
     gap: 16px;
 }
 
+.auth-form .error-message {
+    background: #fee;
+    border: 1px solid #fcc;
+    border-radius: 8px;
+    padding: 12px;
+    color: #c33;
+    font-size: 0.9rem;
+    text-align: center;
+}
+
 .auth-form label {
     font-weight: 500;
     font-size: 0.9rem;
@@ -1001,7 +1019,12 @@ body {
     color: var(--primary-btn-text);
 }
 
-.auth-btn:hover {
+.auth-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.auth-btn:hover:not(:disabled) {
     background: var(--primary-btn-hover-bg);
 }
 
