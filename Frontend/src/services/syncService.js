@@ -1,11 +1,12 @@
-import { fetchAllLists, syncListsToBackend } from './apiService.js';
+import { fetchAllLists, fetchAccessibleLists, syncListsToBackend } from './apiService.js';
 import { getData, saveData } from '@/store/dataStore.js';
+import { isAuthenticated } from './authService.js';
 
 /**
  * Synchronisiert Listen zwischen LocalStorage und Backend
  * 
  * Logik:
- * 1. Lädt Listen vom Backend
+ * 1. Lädt Listen vom Backend (eigene + geteilte)
  * 2. Vergleicht mit LocalStorage basierend auf lastModifiedTimestamp
  * 3. Bei Konflikt: Backend-Version gewinnt (kann später erweitert werden)
  * 4. Sendet lokale Änderungen zum Backend
@@ -14,8 +15,18 @@ import { getData, saveData } from '@/store/dataStore.js';
  */
 export async function syncLists() {
     try {
-        // 1. Backend-Daten laden
-        const backendLists = await fetchAllLists();
+        // 1. Backend-Daten laden (owned + shared)
+        let backendLists = [];
+        
+        if (isAuthenticated()) {
+            // Verwende das neue accessible Endpoint für authentifizierte Benutzer
+            const accessibleData = await fetchAccessibleLists();
+            // Kombiniere owned und shared Listen
+            backendLists = [...(accessibleData.owned || []), ...(accessibleData.shared || [])];
+        } else {
+            // Fallback für nicht-authentifizierte Benutzer
+            backendLists = await fetchAllLists();
+        }
         
         // 2. Lokale Daten holen
         const localData = getData();
@@ -147,7 +158,18 @@ export async function pushAllListsToBackend() {
  */
 export async function pullAllListsFromBackend(overwrite = false) {
     try {
-        const backendLists = await fetchAllLists();
+        let backendLists = [];
+        
+        if (isAuthenticated()) {
+            // Verwende das neue accessible Endpoint für authentifizierte Benutzer
+            const accessibleData = await fetchAccessibleLists();
+            // Kombiniere owned und shared Listen
+            backendLists = [...(accessibleData.owned || []), ...(accessibleData.shared || [])];
+        } else {
+            // Fallback für nicht-authentifizierte Benutzer
+            backendLists = await fetchAllLists();
+        }
+        
         const localData = getData();
         const localLists = localData.lists || {};
         

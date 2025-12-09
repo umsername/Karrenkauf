@@ -1251,3 +1251,28 @@ body {
     width: 18px;
     height: 18px;
 }
+
+/* ============================================================
+   SHARED LIST INDICATOR
+============================================================ */
+.shared-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    background: #e3f2fd;
+    border-radius: 4px;
+    color: #1976d2;
+    font-size: 0.75rem;
+}
+
+.icon-xs {
+    width: 14px;
+    height: 14px;
+}
+
+.list-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}

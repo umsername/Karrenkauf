@@ -3,7 +3,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import * as DS from '@/store/dataStore.js'
 import unitsData from '@/assets/data/units.json'
 import { syncLists } from '@/services/syncService.js'
-import { isAuthenticated } from '@/services/authService.js'
+import { isAuthenticated, getCurrentUser } from '@/services/authService.js'
 import { shareListWithUser, getSharedUsers, unshareListWithUser } from '@/services/apiService.js'
 
 import {
@@ -151,6 +151,14 @@ onUnmounted(() => {
 const unitLabel = (value) => unitsData.units.find(u => u.value === value)?.label || value
 const formatPrice = (value) => (typeof value === 'number' ? value.toFixed(2).replace('.', ',') + ' €' : '0,00 €')
 const previewItems = (list) => list.items.slice(0, 5)
+
+// Check if a list is shared with the current user (not owned by them)
+const isSharedList = (list) => {
+  if (!isAuthenticated()) return false
+  const currentUser = getCurrentUser()
+  if (!currentUser) return false
+  return list.owner && list.owner !== currentUser.username
+}
 
 // Gesamtpreis-Berechnung
 const calculateTotalPrice = (list) => {
@@ -618,6 +626,9 @@ const sortedItems = computed(() => {
 
           <div class="list-card-header">
             {{ list.name }} ({{ list.items.length }})
+            <span v-if="isSharedList(list)" class="shared-badge" title="Von anderen geteilt">
+              <ShareIcon class="icon-xs" />
+            </span>
           </div>
 
           <div class="list-card-body">
