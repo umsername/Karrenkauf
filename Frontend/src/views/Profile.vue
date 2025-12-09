@@ -11,10 +11,12 @@ const userLoggedIn = computed(() => isAuthenticated())
 const shareMessage = ref('')
 
 async function shareProfile() {
-  const username = currentUser.value?.username || 'Gast'
+  const username = currentUser.value?.username
   const shareData = {
     title: 'Mein Karrenkauf Profil',
-    text: `Schau dir mein Profil auf Karrenkauf an! Benutzer: ${username}`,
+    text: username 
+      ? `Schau dir mein Profil auf Karrenkauf an! Benutzer: ${username}`
+      : 'Schau dir Karrenkauf an!',
     url: window.location.href
   }
 
@@ -25,8 +27,13 @@ async function shareProfile() {
       shareMessage.value = 'Erfolgreich geteilt!'
     } else {
       // Fallback: Kopiere URL in die Zwischenablage
-      await navigator.clipboard.writeText(window.location.href)
-      shareMessage.value = 'Link in Zwischenablage kopiert!'
+      try {
+        await navigator.clipboard.writeText(window.location.href)
+        shareMessage.value = 'Link in Zwischenablage kopiert!'
+      } catch (clipboardError) {
+        console.error('Clipboard access denied:', clipboardError)
+        shareMessage.value = 'Bitte kopieren Sie die URL manuell aus der Adressleiste'
+      }
     }
     
     // Nachricht nach 3 Sekunden ausblenden
