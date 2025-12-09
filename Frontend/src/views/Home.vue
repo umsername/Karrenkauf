@@ -156,7 +156,7 @@ const previewItems = (list) => list.items.slice(0, 5)
 const isSharedList = (list) => {
   if (!isAuthenticated()) return false
   const currentUser = getCurrentUser()
-  if (!currentUser) return false
+  if (!currentUser || !currentUser.username) return false
   return list.owner && list.owner !== currentUser.username
 }
 
