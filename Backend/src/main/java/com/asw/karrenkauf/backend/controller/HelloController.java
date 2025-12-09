@@ -12,6 +12,14 @@ public class HelloController {
 	@PermitAll
 	@GetMapping("/hello")
     public String hello() {
+        System.out.println("🔵 [HELLO] GET /api/hello - Request received");
         return "Hello from backend!";
+    }
+    
+    @PermitAll
+    @GetMapping("/public/ping")
+    public String ping() {
+        System.out.println("🔵 [PING] GET /api/public/ping - Request received");
+        return "🟢 Backend is reachable! Server time: " + System.currentTimeMillis();
     }
 }
