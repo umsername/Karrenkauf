@@ -1,11 +1,28 @@
-import { fetchAllLists, syncListsToBackend } from './apiService.js';
+import { fetchAllLists, fetchAccessibleLists, syncListsToBackend } from './apiService.js';
 import { getData, saveData } from '@/store/dataStore.js';
+import { isAuthenticated } from './authService.js';
+
+/**
+ * Helper function to fetch backend lists based on authentication status
+ * @returns {Promise<Array>} Combined array of owned and shared lists
+ */
+async function fetchBackendLists() {
+    if (isAuthenticated()) {
+        // Use the new accessible endpoint for authenticated users
+        const accessibleData = await fetchAccessibleLists();
+        // Combine owned and shared lists
+        return [...(accessibleData.owned || []), ...(accessibleData.shared || [])];
+    } else {
+        // Fallback for non-authenticated users
+        return await fetchAllLists();
+    }
+}
 
 /**
  * Synchronisiert Listen zwischen LocalStorage und Backend
  * 
  * Logik:
- * 1. Lädt Listen vom Backend
+ * 1. Lädt Listen vom Backend (eigene + geteilte)
  * 2. Vergleicht mit LocalStorage basierend auf lastModifiedTimestamp
  * 3. Bei Konflikt: Backend-Version gewinnt (kann später erweitert werden)
  * 4. Sendet lokale Änderungen zum Backend
@@ -14,8 +31,8 @@ import { getData, saveData } from '@/store/dataStore.js';
  */
 export async function syncLists() {
     try {
-        // 1. Backend-Daten laden
-        const backendLists = await fetchAllLists();
+        // 1. Backend-Daten laden (owned + shared)
+        const backendLists = await fetchBackendLists();
         
         // 2. Lokale Daten holen
         const localData = getData();
@@ -147,7 +164,8 @@ export async function pushAllListsToBackend() {
  */
 export async function pullAllListsFromBackend(overwrite = false) {
     try {
-        const backendLists = await fetchAllLists();
+        const backendLists = await fetchBackendLists();
+        
         const localData = getData();
         const localLists = localData.lists || {};
         

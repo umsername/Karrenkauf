@@ -41,6 +41,15 @@
     --header-btn-border: #dedede;
     --header-btn-text: #333;
     --header-btn-hover-bg: #e5e5e5;
+
+    /* Info colors (for shared badges) */
+    --info-bg: #e3f2fd;
+    --info-color: #1976d2;
+
+    /* Error colors (for remove buttons) */
+    --error-bg: #fee;
+    --error-border: #f66;
+    --error-text: #c33;
 }
 
 :root.dark {
@@ -84,6 +93,15 @@
     --header-btn-border: var(--nav-btn-border);
     --header-btn-text: var(--nav-text);
     --header-btn-hover-bg: var(--nav-btn-hover);
+
+    /* Info colors (for shared badges) - darker for dark mode */
+    --info-bg: #1e3a5f;
+    --info-color: #64b5f6;
+
+    /* Error colors (for remove buttons) - darker for dark mode */
+    --error-bg: #4a1f1f;
+    --error-border: #8b3a3a;
+    --error-text: #ef9a9a;
 }
 
 /* ============================================================
@@ -1191,4 +1209,88 @@ body {
     opacity: 0.7;
     font-size: 0.9rem;
     margin: 10px 0 0 0;
+}
+/* ============================================================
+   SHARE MODAL STYLES
+============================================================ */
+.share-modal {
+    max-width: 500px;
+}
+
+.shared-users-section {
+    margin-top: 1.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.shared-users-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.shared-user-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+}
+
+.shared-user-item span {
+    font-weight: 500;
+}
+
+.remove-user-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: var(--text);
+}
+
+.remove-user-btn:hover {
+    background: var(--error-bg);
+    border-color: var(--error-border);
+    color: var(--error-text);
+}
+
+.remove-user-btn .icon-sm {
+    width: 18px;
+    height: 18px;
+}
+
+/* ============================================================
+   SHARED LIST INDICATOR
+============================================================ */
+.shared-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 0.5rem;
+    padding: 0.25rem 0.5rem;
+    background: var(--info-bg);
+    border-radius: 4px;
+    color: var(--info-color);
+    font-size: 0.75rem;
+}
+
+.icon-xs {
+    width: 14px;
+    height: 14px;
+}
+
+.list-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
 }

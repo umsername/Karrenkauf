@@ -3,7 +3,8 @@ import { ref, computed, onMounted, onUnmounted } from 'vue'
 import * as DS from '@/store/dataStore.js'
 import unitsData from '@/assets/data/units.json'
 import { syncLists } from '@/services/syncService.js'
-import { isAuthenticated } from '@/services/authService.js'
+import { isAuthenticated, getCurrentUser } from '@/services/authService.js'
+import { shareListWithUser, getSharedUsers, unshareListWithUser } from '@/services/apiService.js'
 
 import {
   PencilSquareIcon,
@@ -19,7 +20,9 @@ import {
   MagnifyingGlassIcon,
   ArrowPathIcon,
   ShareIcon,
-  XMarkIcon
+  XMarkIcon,
+  UserPlusIcon,
+  UserMinusIcon
 } from '@heroicons/vue/24/outline'
 
 // Grundzustand
@@ -33,6 +36,7 @@ const isEditModalOpen = ref(false)
 const isDeleteConfirmOpen = ref(false)
 const isNewListModalOpen = ref(false)
 const isRenameListModalOpen = ref(false)
+const isShareModalOpen = ref(false)
 const newListName = ref('')
 const editableItem = ref(null)
 
@@ -45,40 +49,80 @@ const syncMessage = ref('')
 
 // Share-Funktionalität
 const shareMessage = ref('')
+const shareUsername = ref('')
+const sharedUsers = ref([])
+const isLoadingShares = ref(false)
 
-async function shareList() {
-  if (!expandedListId.value || !lists.value[expandedListId.value]) return
+async function openShareModal() {
+  if (!isAuthenticated()) {
+    shareMessage.value = 'Bitte melden Sie sich an, um Listen zu teilen'
+    setTimeout(() => shareMessage.value = '', 3000)
+    return
+  }
+
+  isShareModalOpen.value = true
+  shareUsername.value = ''
+  shareMessage.value = ''
+  await loadSharedUsers()
+}
+
+async function loadSharedUsers() {
+  if (!expandedListId.value) return
   
-  const list = lists.value[expandedListId.value]
-  const shareData = {
-    title: 'Karrenkauf Liste',
-    text: `Schau dir meine Einkaufsliste "${list.name}" auf Karrenkauf an! Sie hat ${list.items.length} Artikel.`,
-    url: window.location.href
+  isLoadingShares.value = true
+  try {
+    const response = await getSharedUsers(expandedListId.value)
+    sharedUsers.value = response.sharedWith || []
+  } catch (error) {
+    console.error('Failed to load shared users:', error)
+    sharedUsers.value = []
+  } finally {
+    isLoadingShares.value = false
+  }
+}
+
+async function shareListWithUsername() {
+  if (!shareUsername.value.trim()) {
+    shareMessage.value = 'Bitte geben Sie einen Benutzernamen ein'
+    return
   }
 
   try {
-    if (navigator.share) {
-      // Verwende die Web Share API, wenn verfügbar (mobil)
-      await navigator.share(shareData)
-      shareMessage.value = 'Liste erfolgreich geteilt!'
-    } else {
-      // Fallback: Kopiere URL in die Zwischenablage
-      try {
-        await navigator.clipboard.writeText(window.location.href)
-        shareMessage.value = 'Link in Zwischenablage kopiert!'
-      } catch (clipboardError) {
-        console.error('Clipboard access denied:', clipboardError)
-        shareMessage.value = 'Bitte kopieren Sie die URL manuell aus der Adressleiste'
-      }
-    }
+    const result = await shareListWithUser(expandedListId.value, shareUsername.value.trim())
+    shareMessage.value = result
+    shareUsername.value = ''
+    await loadSharedUsers()
     
-    // Nachricht nach 3 Sekunden ausblenden
     setTimeout(() => {
       shareMessage.value = ''
     }, 3000)
   } catch (error) {
-    console.error('Fehler beim Teilen:', error)
-    shareMessage.value = 'Fehler beim Teilen'
+    if (error.response?.data) {
+      shareMessage.value = error.response.data
+    } else {
+      shareMessage.value = 'Fehler beim Teilen der Liste'
+    }
+    setTimeout(() => {
+      shareMessage.value = ''
+    }, 3000)
+  }
+}
+
+async function removeSharedUser(username) {
+  try {
+    const result = await unshareListWithUser(expandedListId.value, username)
+    shareMessage.value = result
+    await loadSharedUsers()
+    
+    setTimeout(() => {
+      shareMessage.value = ''
+    }, 3000)
+  } catch (error) {
+    if (error.response?.data) {
+      shareMessage.value = error.response.data
+    } else {
+      shareMessage.value = 'Fehler beim Entfernen des Benutzers'
+    }
     setTimeout(() => {
       shareMessage.value = ''
     }, 3000)
@@ -107,6 +151,14 @@ onUnmounted(() => {
 const unitLabel = (value) => unitsData.units.find(u => u.value === value)?.label || value
 const formatPrice = (value) => (typeof value === 'number' ? value.toFixed(2).replace('.', ',') + ' €' : '0,00 €')
 const previewItems = (list) => list.items.slice(0, 5)
+
+// Check if a list is shared with the current user (not owned by them)
+const isSharedList = (list) => {
+  if (!isAuthenticated()) return false
+  const currentUser = getCurrentUser()
+  if (!currentUser || !currentUser.username) return false
+  return list.owner && list.owner !== currentUser.username
+}
 
 // Gesamtpreis-Berechnung
 const calculateTotalPrice = (list) => {
@@ -162,7 +214,12 @@ function openNewListModal() {
 }
 function createNewList() {
   if (!newListName.value.trim()) return
-  const newListId = DS.createList(newListName.value, 'user')
+  
+  // Get the current user's username, fallback to 'user' if not authenticated
+  const currentUser = getCurrentUser()
+  const owner = currentUser?.username || 'user'
+  
+  const newListId = DS.createList(newListName.value, owner)
   isNewListModalOpen.value = false
   expandedListId.value = newListId
 }
@@ -302,7 +359,7 @@ const sortedItems = computed(() => {
       </h2>
 
       <div class="header-actions">
-        <button @click="shareList" class="header-btn">
+        <button @click="openShareModal" class="header-btn">
           <ShareIcon class="icon" />
           <span>Teilen</span>
         </button>
@@ -574,6 +631,9 @@ const sortedItems = computed(() => {
 
           <div class="list-card-header">
             {{ list.name }} ({{ list.items.length }})
+            <span v-if="isSharedList(list)" class="shared-badge" title="Von anderen geteilt">
+              <ShareIcon class="icon-xs" />
+            </span>
           </div>
 
           <div class="list-card-body">
@@ -731,6 +791,73 @@ const sortedItems = computed(() => {
           <button type="submit">Umbenennen</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Share Modal -->
+  <div v-if="isShareModalOpen" class="modal-backdrop" @click.self="isShareModalOpen = false">
+    <div class="modal share-modal">
+      <h2 class="modal-title">Liste teilen</h2>
+
+      <div v-if="shareMessage" class="share-message">
+        {{ shareMessage }}
+      </div>
+
+      <form @submit.prevent="shareListWithUsername" class="modal-form">
+        <div class="form-group">
+          <label for="share-username">Benutzername</label>
+          <div style="display: flex; gap: 0.5rem;">
+            <input 
+              v-model="shareUsername" 
+              id="share-username" 
+              type="text" 
+              placeholder="Benutzername eingeben..."
+              style="flex: 1;"
+            />
+            <button type="submit" class="action-btn primary">
+              <UserPlusIcon class="icon-sm" />
+              <span>Hinzufügen</span>
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <div class="shared-users-section">
+        <h3 style="margin-bottom: 0.75rem; font-size: 1rem; font-weight: 600;">
+          Geteilt mit:
+        </h3>
+
+        <div v-if="isLoadingShares" style="text-align: center; padding: 1rem;">
+          Lädt...
+        </div>
+
+        <div v-else-if="sharedUsers.length === 0" style="color: #666; font-style: italic; padding: 1rem;">
+          Diese Liste wurde noch nicht geteilt
+        </div>
+
+        <ul v-else class="shared-users-list">
+          <li 
+            v-for="username in sharedUsers" 
+            :key="username"
+            class="shared-user-item"
+          >
+            <span>{{ username }}</span>
+            <button 
+              @click="removeSharedUser(username)"
+              class="remove-user-btn"
+              title="Zugriff entfernen"
+            >
+              <UserMinusIcon class="icon-sm" />
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="cancel" @click="isShareModalOpen = false">
+          Schließen
+        </button>
+      </div>
     </div>
   </div>
 </template>
