@@ -17,7 +17,8 @@ import {
   ChevronUpIcon,
   ChevronDownIcon,
   MagnifyingGlassIcon,
-  ArrowPathIcon
+  ArrowPathIcon,
+  ShareIcon
 } from '@heroicons/vue/24/outline'
 
 // Grundzustand
@@ -31,7 +32,6 @@ const isEditModalOpen = ref(false)
 const isDeleteConfirmOpen = ref(false)
 const isNewListModalOpen = ref(false)
 const isRenameListModalOpen = ref(false)
-const isSearchModalOpen = ref(false)
 const newListName = ref('')
 const editableItem = ref(null)
 
@@ -42,6 +42,48 @@ const searchTerm = ref('')
 const isSyncing = ref(false)
 const syncMessage = ref('')
 
+// Share-Funktionalität
+const shareMessage = ref('')
+
+async function shareList() {
+  if (!expandedListId.value || !lists.value[expandedListId.value]) return
+  
+  const list = lists.value[expandedListId.value]
+  const shareData = {
+    title: 'Karrenkauf Liste',
+    text: `Schau dir meine Einkaufsliste "${list.name}" auf Karrenkauf an! Sie hat ${list.items.length} Artikel.`,
+    url: window.location.href
+  }
+
+  try {
+    if (navigator.share) {
+      // Verwende die Web Share API, wenn verfügbar (mobil)
+      await navigator.share(shareData)
+      shareMessage.value = 'Liste erfolgreich geteilt!'
+    } else {
+      // Fallback: Kopiere URL in die Zwischenablage
+      try {
+        await navigator.clipboard.writeText(window.location.href)
+        shareMessage.value = 'Link in Zwischenablage kopiert!'
+      } catch (clipboardError) {
+        console.error('Clipboard access denied:', clipboardError)
+        shareMessage.value = 'Bitte kopieren Sie die URL manuell aus der Adressleiste'
+      }
+    }
+    
+    // Nachricht nach 3 Sekunden ausblenden
+    setTimeout(() => {
+      shareMessage.value = ''
+    }, 3000)
+  } catch (error) {
+    console.error('Fehler beim Teilen:', error)
+    shareMessage.value = 'Fehler beim Teilen'
+    setTimeout(() => {
+      shareMessage.value = ''
+    }, 3000)
+  }
+}
+
 // Zustände für den Auswahlmodus
 const isSelectionMode = ref(false)
 const selectedLists = ref(new Set())
@@ -51,6 +93,7 @@ function resetToOverview() {
   expandedListId.value = null
   isSelectionMode.value = false
   selectedLists.value.clear()
+  searchTerm.value = '' // Suchkriterium löschen beim Verlassen der Liste
 }
 onMounted(() => {
   window.addEventListener("karrenkauf-home-reset", resetToOverview)
@@ -258,9 +301,9 @@ const sortedItems = computed(() => {
       </h2>
 
       <div class="header-actions">
-        <button @click="isSearchModalOpen = true" class="header-btn">
-          <MagnifyingGlassIcon class="icon" />
-          <span>Suchen</span>
+        <button @click="shareList" class="header-btn">
+          <ShareIcon class="icon" />
+          <span>Teilen</span>
         </button>
 
         <button @click="openRenameListModal" class="header-btn">
@@ -277,6 +320,35 @@ const sortedItems = computed(() => {
           <TrashIcon class="icon" />
         </button>
       </div>
+    </div>
+
+    <!-- Share-Nachricht -->
+    <div v-if="shareMessage" class="share-message">
+      {{ shareMessage }}
+    </div>
+
+    <!-- Inline-Suchfeld -->
+    <div class="search-box">
+      <div class="search-input-wrapper">
+        <MagnifyingGlassIcon class="search-icon" />
+        <input 
+          v-model="searchTerm" 
+          type="text" 
+          placeholder="Items durchsuchen..." 
+          class="search-input"
+        />
+        <button 
+          v-if="searchTerm" 
+          @click="searchTerm = ''" 
+          class="clear-search-btn"
+          title="Suche löschen"
+        >
+          ✕
+        </button>
+      </div>
+      <p v-if="searchTerm" class="search-result-info">
+        {{ sortedItems.length }} Ergebnis(se) gefunden
+      </p>
     </div>
 
     <div class="table-container">
@@ -658,45 +730,6 @@ const sortedItems = computed(() => {
           <button type="submit">Umbenennen</button>
         </div>
       </form>
-    </div>
-  </div>
-
-  <!-- Suchmodal -->
-  <div v-if="isSearchModalOpen" class="modal-backdrop" @click.self="isSearchModalOpen = false">
-    <div class="modal">
-      <h2 class="modal-title">Items durchsuchen</h2>
-
-      <div class="modal-form">
-        <div class="form-group">
-          <label for="search-input">Suchbegriff</label>
-          <input 
-            v-model="searchTerm" 
-            id="search-input" 
-            type="text" 
-            placeholder="Name des Items eingeben..."
-            autofocus
-          />
-        </div>
-
-        <p class="search-result-info">
-          {{ sortedItems.length }} Ergebnis(se) gefunden
-        </p>
-
-        <div class="modal-actions">
-          <button type="button" @click="isSearchModalOpen = false">
-            Schließen
-          </button>
-          
-          <button 
-            type="button" 
-            class="cancel" 
-            @click="searchTerm = ''"
-            :disabled="!searchTerm"
-          >
-            Filter zurücksetzen
-          </button>
-        </div>
-      </div>
     </div>
   </div>
 </template>
