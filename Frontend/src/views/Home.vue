@@ -18,7 +18,8 @@ import {
   ChevronDownIcon,
   MagnifyingGlassIcon,
   ArrowPathIcon,
-  ShareIcon
+  ShareIcon,
+  XMarkIcon
 } from '@heroicons/vue/24/outline'
 
 // Grundzustand
@@ -343,7 +344,7 @@ const sortedItems = computed(() => {
           class="clear-search-btn"
           title="Suche löschen"
         >
-          ✕
+          <XMarkIcon class="icon-sm" />
         </button>
       </div>
       <p v-if="searchTerm" class="search-result-info">
