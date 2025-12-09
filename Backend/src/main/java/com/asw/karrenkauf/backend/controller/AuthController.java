@@ -33,45 +33,82 @@ public class AuthController {
     
     @PostMapping("/user")
     public String createUser(@RequestParam String username, @RequestParam String password) {
-    	if (userRepo.findByUserName(username).isPresent()) {
-            return "❌ Username already exists. Pick a different one.";
+        System.out.println("🔵 [REGISTER] Request received - Username: " + username);
+        
+        // Validate input
+        if (username == null || username.trim().isEmpty()) {
+            System.out.println("❌ [REGISTER] Username is empty");
+            return "❌ Username cannot be empty";
         }
-    	
+        if (password == null || password.trim().isEmpty()) {
+            System.out.println("❌ [REGISTER] Password is empty");
+            return "❌ Password cannot be empty";
+        }
+
+        // Check if username already exists
+        Optional<User> existingUser = userRepo.findByUserName(username);
+        if (existingUser.isPresent()) {
+            System.out.println("❌ [REGISTER] Username already exists: " + username);
+            return "❌ Username already exists";
+        }
+
+        // Hash password before saving
         String hashedPassword = this.encoder.encode(password);
+        System.out.println("🔐 [REGISTER] Password hashed successfully");
 
-        String id = UUID.randomUUID().toString();
-        User u = new User(id, hashedPassword, username); // Passwort jetzt gehashed
-        userRepo.save(u);
+        // Create new user
+        String userId = UUID.randomUUID().toString();
+        User newUser = new User(userId, hashedPassword, username);
+        userRepo.save(newUser);
 
-        return "Created user " + username + " with id " + id;
+        System.out.println("✅ [REGISTER] User registered successfully - ID: " + userId);
+        return "👍 User registered successfully!";
     }
 
     // Check login status before showing login page
     @GetMapping("/status")
     public String status(@RequestParam(required = false) String token) {
-        if (token == null) return "No token → Please login.";
+        System.out.println("🔵 [STATUS] Request received - Token: " + (token != null ? token.substring(0, Math.min(20, token.length())) + "..." : "null"));
+        
+        if (token == null) {
+            System.out.println("❌ [STATUS] No token provided");
+            return "No token → Please login.";
+        }
 
         Optional<TokenEntry> entry = tokenRepo.findById(token);
 
-        if (entry.isEmpty()) return "Token unknown → Please login.";
-        if (entry.get().isExpired()) return "Token expired → Please login again.";
+        if (entry.isEmpty()) {
+            System.out.println("❌ [STATUS] Token unknown");
+            return "Token unknown → Please login.";
+        }
+        if (entry.get().isExpired()) {
+            System.out.println("❌ [STATUS] Token expired");
+            return "Token expired → Please login again.";
+        }
 
-        return "Already logged in as: " + entry.get().getUsername();
+        String username = entry.get().getUsername();
+        System.out.println("✅ [STATUS] User is logged in: " + username);
+        return "Already logged in as: " + username;
     }
 
 	@PostMapping("/login")
 	public String login(@RequestBody LoginRequest request) {
 	    String username = request.getUsername();
 	    String password = request.getPassword();
+	    
+	    System.out.println("🔵 [LOGIN] Request received - Username: " + username);
 	
 	    Optional<User> userOpt = userRepo.findByUserName(username);
-	    if (userOpt.isEmpty()) return "❌ User does not exist";
+	    if (userOpt.isEmpty()) {
+	        System.out.println("❌ [LOGIN] User does not exist: " + username);
+	        return "❌ User does not exist";
+	    }
 	
 	    User user = userOpt.get();
-	    PasswordEncoder encoder = new BCryptPasswordEncoder();
-	    System.out.println(user.getUserPassword());
-	    System.out.println(encoder.encode(password));
+	    System.out.println("🔍 [LOGIN] User found - Verifying password...");
+	    
 	    if (!encoder.matches(password, user.getUserPassword())) {
+	        System.out.println("❌ [LOGIN] Invalid password for user: " + username);
 	        return "❌ Invalid password";
 	    }
 	
@@ -80,30 +117,7 @@ public class AuthController {
 	    long exp = System.currentTimeMillis() + 1000 * 60 * 60; // 1 hour
 	    tokenRepo.save(new TokenEntry(token, user.getUserId(), exp));
 	
+	    System.out.println("✅ [LOGIN] Login successful - Token generated for user: " + username);
 	    return "👍 Login successful!\n\nTOKEN:\n" + token;
-	}
-
-	@PostMapping("/user")
-	public String createUser(@RequestParam String username, @RequestParam String password) {
-	    // Validate input
-	    if (username == null || username.trim().isEmpty()) {
-	        return "❌ Username cannot be empty";
-	    }
-	    if (password == null || password.trim().isEmpty()) {
-	        return "❌ Password cannot be empty";
-	    }
-
-	    // Check if username already exists
-	    Optional<User> existingUser = userRepo.findByUserName(username);
-	    if (existingUser.isPresent()) {
-	        return "❌ Username already exists";
-	    }
-
-	    // Create new user
-	    String userId = java.util.UUID.randomUUID().toString();
-	    User newUser = new User(userId, password, username);
-	    userRepo.save(newUser);
-
-	    return "👍 User registered successfully!";
 	}
 }
