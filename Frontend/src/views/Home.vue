@@ -2,6 +2,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import * as DS from '@/store/dataStore.js'
 import unitsData from '@/assets/data/units.json'
+import { syncLists } from '@/services/syncService.js'
+import { isAuthenticated } from '@/services/authService.js'
 
 import {
   PencilSquareIcon,
@@ -13,7 +15,9 @@ import {
   ChevronLeftIcon,
   ChevronUpDownIcon,
   ChevronUpIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  MagnifyingGlassIcon,
+  ArrowPathIcon
 } from '@heroicons/vue/24/outline'
 
 // Grundzustand
@@ -27,8 +31,16 @@ const isEditModalOpen = ref(false)
 const isDeleteConfirmOpen = ref(false)
 const isNewListModalOpen = ref(false)
 const isRenameListModalOpen = ref(false)
+const isSearchModalOpen = ref(false)
 const newListName = ref('')
 const editableItem = ref(null)
+
+// Suchfunktionalität
+const searchTerm = ref('')
+
+// Sync-Status
+const isSyncing = ref(false)
+const syncMessage = ref('')
 
 // Zustände für den Auswahlmodus
 const isSelectionMode = ref(false)
@@ -163,6 +175,29 @@ function exportSelectedLists() {
   DS.exportMultipleLists(selectedLists.value)
 }
 
+// Sync-Funktionalität
+async function handleSync() {
+  if (!isAuthenticated()) {
+    syncMessage.value = 'Bitte melden Sie sich an, um zu synchronisieren'
+    setTimeout(() => syncMessage.value = '', 3000)
+    return
+  }
+
+  isSyncing.value = true
+  syncMessage.value = ''
+
+  try {
+    const result = await syncLists()
+    syncMessage.value = result.message
+    setTimeout(() => syncMessage.value = '', 5000)
+  } catch (error) {
+    syncMessage.value = 'Synchronisation fehlgeschlagen'
+    setTimeout(() => syncMessage.value = '', 5000)
+  } finally {
+    isSyncing.value = false
+  }
+}
+
 function toggleSort(column) {
   if (sortColumn.value !== column) {
     sortColumn.value = column
@@ -182,7 +217,17 @@ function sortDirectionFor(column) {
 const sortedItems = computed(() => {
   if (!expandedListId.value) return []
 
-  const items = [...lists.value[expandedListId.value].items]
+  let items = [...lists.value[expandedListId.value].items]
+  
+  // Suchfilter anwenden
+  if (searchTerm.value.trim()) {
+    const search = searchTerm.value.toLowerCase().trim()
+    items = items.filter(item => 
+      item.name && item.name.toLowerCase().includes(search)
+    )
+  }
+  
+  // Sortierung anwenden
   if (sortDirection.value === 'neutral' || !sortColumn.value) return items
 
   return items.sort((a, b) => {
@@ -213,6 +258,11 @@ const sortedItems = computed(() => {
       </h2>
 
       <div class="header-actions">
+        <button @click="isSearchModalOpen = true" class="header-btn">
+          <MagnifyingGlassIcon class="icon" />
+          <span>Suchen</span>
+        </button>
+
         <button @click="openRenameListModal" class="header-btn">
           <PencilSquareIcon class="icon" />
           <span>Umbenennen</span>
@@ -373,6 +423,11 @@ const sortedItems = computed(() => {
        ============================================================ -->
   <div v-else>
     <div class="overview-container">
+      <!-- Sync-Nachricht anzeigen -->
+      <div v-if="syncMessage" class="sync-message">
+        {{ syncMessage }}
+      </div>
+
       <div class="global-actions">
         <div v-if="!isSelectionMode" class="normal-actions">
           <button @click="openNewListModal" class="action-btn primary">
@@ -387,6 +442,16 @@ const sortedItems = computed(() => {
           >
             <PencilSquareIcon class="icon" />
             <span>Bearbeiten</span>
+          </button>
+
+          <button
+            v-if="isAuthenticated()"
+            @click="handleSync"
+            :disabled="isSyncing"
+            class="action-btn sync-btn"
+          >
+            <ArrowPathIcon class="icon" :class="{ 'spinning': isSyncing }" />
+            <span>{{ isSyncing ? 'Synchronisiere...' : 'Synchronisieren' }}</span>
           </button>
         </div>
 
@@ -593,6 +658,45 @@ const sortedItems = computed(() => {
           <button type="submit">Umbenennen</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- Suchmodal -->
+  <div v-if="isSearchModalOpen" class="modal-backdrop" @click.self="isSearchModalOpen = false">
+    <div class="modal">
+      <h2 class="modal-title">Items durchsuchen</h2>
+
+      <div class="modal-form">
+        <div class="form-group">
+          <label for="search-input">Suchbegriff</label>
+          <input 
+            v-model="searchTerm" 
+            id="search-input" 
+            type="text" 
+            placeholder="Name des Items eingeben..."
+            autofocus
+          />
+        </div>
+
+        <p class="search-result-info">
+          {{ sortedItems.length }} Ergebnis(se) gefunden
+        </p>
+
+        <div class="modal-actions">
+          <button type="button" @click="isSearchModalOpen = false">
+            Schließen
+          </button>
+          
+          <button 
+            type="button" 
+            class="cancel" 
+            @click="searchTerm = ''"
+            :disabled="!searchTerm"
+          >
+            Filter zurücksetzen
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
