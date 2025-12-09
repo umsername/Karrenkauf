@@ -22,8 +22,8 @@ async function handleLogin() {
         const result = await login(username.value, password.value)
 
         if (result.success) {
-            // Login erfolgreich - zur Startseite weiterleiten
-            router.push("/")
+            // Login erfolgreich - zur Profilseite weiterleiten
+            router.push("/profile")
         } else {
             errorMessage.value = result.message
         }
