@@ -110,6 +110,59 @@ export function isAuthenticated() {
 }
 
 /**
+ * Registrierungs-Funktion
+ * @param {string} username - Benutzername
+ * @param {string} password - Passwort
+ * @returns {Promise<{success: boolean, message: string}>}
+ */
+export async function registerUser(username, password) {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/api/user`, null, {
+            params: {
+                username,
+                password
+            }
+        });
+
+        const responseText = response.data;
+
+        // Backend gibt einen String zurück
+        if (responseText.includes('successfully')) {
+            return {
+                success: true,
+                message: 'Registrierung erfolgreich!'
+            };
+        }
+
+        // Fehlerfall
+        return {
+            success: false,
+            message: responseText || 'Registrierung fehlgeschlagen'
+        };
+
+    } catch (error) {
+        console.error('Registration error:', error);
+        
+        if (error.response) {
+            return {
+                success: false,
+                message: error.response.data || 'Serverfehler bei der Registrierung'
+            };
+        } else if (error.request) {
+            return {
+                success: false,
+                message: 'Keine Verbindung zum Server möglich'
+            };
+        } else {
+            return {
+                success: false,
+                message: 'Ein Fehler ist aufgetreten'
+            };
+        }
+    }
+}
+
+/**
  * Prüft den Login-Status beim Backend
  * @returns {Promise<{isValid: boolean, message: string, username?: string}>}
  */
