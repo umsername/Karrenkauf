@@ -2,6 +2,8 @@
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import * as DS from '@/store/dataStore.js'
 import unitsData from '@/assets/data/units.json'
+import { syncLists } from '@/services/syncService.js'
+import { isAuthenticated } from '@/services/authService.js'
 
 import {
   PencilSquareIcon,
@@ -14,7 +16,8 @@ import {
   ChevronUpDownIcon,
   ChevronUpIcon,
   ChevronDownIcon,
-  MagnifyingGlassIcon
+  MagnifyingGlassIcon,
+  ArrowPathIcon
 } from '@heroicons/vue/24/outline'
 
 // Grundzustand
@@ -34,6 +37,10 @@ const editableItem = ref(null)
 
 // Suchfunktionalität
 const searchTerm = ref('')
+
+// Sync-Status
+const isSyncing = ref(false)
+const syncMessage = ref('')
 
 // Zustände für den Auswahlmodus
 const isSelectionMode = ref(false)
@@ -166,6 +173,29 @@ function exportSelectedLists() {
   if (selectedLists.value.size === 0) return
   console.log("Exportiere Listen:", Array.from(selectedLists.value))
   DS.exportMultipleLists(selectedLists.value)
+}
+
+// Sync-Funktionalität
+async function handleSync() {
+  if (!isAuthenticated()) {
+    syncMessage.value = 'Bitte melden Sie sich an, um zu synchronisieren'
+    setTimeout(() => syncMessage.value = '', 3000)
+    return
+  }
+
+  isSyncing.value = true
+  syncMessage.value = ''
+
+  try {
+    const result = await syncLists()
+    syncMessage.value = result.message
+    setTimeout(() => syncMessage.value = '', 5000)
+  } catch (error) {
+    syncMessage.value = 'Synchronisation fehlgeschlagen'
+    setTimeout(() => syncMessage.value = '', 5000)
+  } finally {
+    isSyncing.value = false
+  }
 }
 
 function toggleSort(column) {
@@ -393,6 +423,11 @@ const sortedItems = computed(() => {
        ============================================================ -->
   <div v-else>
     <div class="overview-container">
+      <!-- Sync-Nachricht anzeigen -->
+      <div v-if="syncMessage" class="sync-message">
+        {{ syncMessage }}
+      </div>
+
       <div class="global-actions">
         <div v-if="!isSelectionMode" class="normal-actions">
           <button @click="openNewListModal" class="action-btn primary">
@@ -407,6 +442,16 @@ const sortedItems = computed(() => {
           >
             <PencilSquareIcon class="icon" />
             <span>Bearbeiten</span>
+          </button>
+
+          <button
+            v-if="isAuthenticated()"
+            @click="handleSync"
+            :disabled="isSyncing"
+            class="action-btn sync-btn"
+          >
+            <ArrowPathIcon class="icon" :class="{ 'spinning': isSyncing }" />
+            <span>{{ isSyncing ? 'Synchronisiere...' : 'Synchronisieren' }}</span>
           </button>
         </div>
 

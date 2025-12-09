@@ -146,8 +146,33 @@ body {
     font-weight: 500;
 }
 
-.action-btn:hover {
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.action-btn:hover:not(:disabled) {
     background: var(--nav-btn-hover);
+}
+
+.action-btn .spinning {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.sync-message {
+    background: var(--brand-bg2);
+    border: 1px solid var(--brand-border);
+    color: var(--brand-text);
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 16px;
+    text-align: center;
+    font-weight: 500;
 }
 
 .normal-actions {
