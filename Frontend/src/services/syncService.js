@@ -35,11 +35,15 @@ export async function syncLists() {
                     localLists[listId] = backendList;
                     updatedCount++;
                 } else {
-                    // Liste existiert lokal - Timestamps vergleichen
+                    // Liste existiert lokal - Timestamps und Version vergleichen
                     const backendTimestamp = backendList.lastModifiedTimestamp || backendList.updatedAt || 0;
                     const localTimestamp = localList.lastModifiedTimestamp || localList.updatedAt || 0;
+                    const backendVersion = backendList.version || 0;
+                    const localVersion = localList.version || 0;
                     
-                    if (backendTimestamp > localTimestamp) {
+                    // Konfliktauflösung: Version hat Priorität, bei gleicher Version entscheidet Timestamp
+                    if (backendVersion > localVersion || 
+                        (backendVersion === localVersion && backendTimestamp > localTimestamp)) {
                         // Backend ist neuer - überschreiben
                         localLists[listId] = backendList;
                         updatedCount++;
@@ -65,11 +69,14 @@ export async function syncLists() {
                 hasLocalChanges = true;
                 uploadedCount++;
             } else {
-                // Prüfen ob lokal neuer
+                // Prüfen ob lokal neuer (Version und Timestamp)
                 const backendTimestamp = backendList.lastModifiedTimestamp || backendList.updatedAt || 0;
                 const localTimestamp = localList.lastModifiedTimestamp || localList.updatedAt || 0;
+                const backendVersion = backendList.version || 0;
+                const localVersion = localList.version || 0;
                 
-                if (localTimestamp > backendTimestamp) {
+                if (localVersion > backendVersion ||
+                    (localVersion === backendVersion && localTimestamp > backendTimestamp)) {
                     // Lokale Version ist neuer - zum Upload hinzufügen
                     localListsToUpload[listId] = localList;
                     hasLocalChanges = true;

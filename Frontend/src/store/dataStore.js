@@ -28,8 +28,8 @@ export function createList(name, owner) {
     const list = {
         id,
         name,
-        owner,
-        ownerId: owner, // Multi-user support: ID des Besitzers
+        owner, // Legacy-Feld, für Abwärtskompatibilität beibehalten
+        ownerId: owner, // Multi-user support: ID des Besitzers (kann später User-ID sein)
         sharedWithUserIds: [], // Multi-user support: Liste von User-IDs, mit denen geteilt wurde
         createdAt: timestamp,
         updatedAt: timestamp,
