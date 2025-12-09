@@ -138,6 +138,11 @@ public class ListController {
             return ResponseEntity.status(400).body("❌ Username cannot be empty");
         }
 
+        // Prevent sharing with oneself
+        if (targetUsername.equals(currentUsername)) {
+            return ResponseEntity.status(400).body("❌ Cannot share list with yourself");
+        }
+
         Optional<User> targetUserOpt = AuthController.userRepo.findByUserName(targetUsername);
         if (targetUserOpt.isEmpty()) {
             return ResponseEntity.status(404).body("❌ User not found: " + targetUsername);

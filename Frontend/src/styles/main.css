@@ -41,6 +41,15 @@
     --header-btn-border: #dedede;
     --header-btn-text: #333;
     --header-btn-hover-bg: #e5e5e5;
+
+    /* Info colors (for shared badges) */
+    --info-bg: #e3f2fd;
+    --info-color: #1976d2;
+
+    /* Error colors (for remove buttons) */
+    --error-bg: #fee;
+    --error-border: #f66;
+    --error-text: #c33;
 }
 
 :root.dark {
@@ -84,6 +93,15 @@
     --header-btn-border: var(--nav-btn-border);
     --header-btn-text: var(--nav-text);
     --header-btn-hover-bg: var(--nav-btn-hover);
+
+    /* Info colors (for shared badges) - darker for dark mode */
+    --info-bg: #1e3a5f;
+    --info-color: #64b5f6;
+
+    /* Error colors (for remove buttons) - darker for dark mode */
+    --error-bg: #4a1f1f;
+    --error-border: #8b3a3a;
+    --error-text: #ef9a9a;
 }
 
 /* ============================================================
@@ -1242,9 +1260,9 @@ body {
 }
 
 .remove-user-btn:hover {
-    background: #fee;
-    border-color: #f66;
-    color: #c33;
+    background: var(--error-bg);
+    border-color: var(--error-border);
+    color: var(--error-text);
 }
 
 .remove-user-btn .icon-sm {
@@ -1260,9 +1278,9 @@ body {
     align-items: center;
     margin-left: 0.5rem;
     padding: 0.25rem 0.5rem;
-    background: #e3f2fd;
+    background: var(--info-bg);
     border-radius: 4px;
-    color: #1976d2;
+    color: var(--info-color);
     font-size: 0.75rem;
 }
 
