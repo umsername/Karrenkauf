@@ -214,7 +214,12 @@ function openNewListModal() {
 }
 function createNewList() {
   if (!newListName.value.trim()) return
-  const newListId = DS.createList(newListName.value, 'user')
+  
+  // Get the current user's username, fallback to 'user' if not authenticated
+  const currentUser = getCurrentUser()
+  const owner = currentUser?.username || 'user'
+  
+  const newListId = DS.createList(newListName.value, owner)
   isNewListModalOpen.value = false
   expandedListId.value = newListId
 }
