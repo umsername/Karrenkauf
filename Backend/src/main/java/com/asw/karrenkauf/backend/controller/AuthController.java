@@ -9,6 +9,7 @@ import com.asw.karrenkauf.backend.security.JWTUtil;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api")
@@ -22,6 +23,18 @@ public class AuthController {
         this.jwtUtil = jwtUtil;
         this.tokenRepo = tokenRepo;
         this.userRepo = userRepo;
+    }
+    
+    @PostMapping("/user")
+    public String createUser(@RequestParam String username, @RequestParam String password) {
+    	if (userRepo.findByUserName(username).isPresent()) {
+            return "❌ Username already exists. Pick a different one.";
+        }
+    	
+        String id = UUID.randomUUID().toString();
+        User u = new User(id, password, username);
+        userRepo.save(u);
+        return "Created user " + username + " with id " + id;
     }
 
     // Check login status before showing login page
