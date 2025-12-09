@@ -105,3 +105,117 @@ fetch("http://localhost:8080/api/lists/listId1")
   .then(console.log)
   .catch(err => console.error("Error:", err));
 ```
+
+## List Sharing Endpoints
+
+### Share List with User
+Share a list with another user by username. Only the list owner can share.
+
+**Endpoint:**  
+POST /api/lists/{listId}/share
+
+**Headers:**  
+Authorization: Bearer {token}
+
+**Body:**
+```json
+{
+  "username": "targetuser"
+}
+```
+
+**Example:**
+```javascript
+fetch("http://localhost:8080/api/lists/listId1/share", {
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer YOUR_TOKEN_HERE"
+    },
+    body: JSON.stringify({ username: "targetuser" })
+})
+.then(res => res.text())
+.then(console.log)
+.catch(err => console.error("Error:", err));
+```
+
+### Get Shared Users for a List
+Get the list of users a list is shared with.
+
+**Endpoint:**  
+GET /api/lists/{listId}/shared
+
+**Headers:**  
+Authorization: Bearer {token}
+
+**Response:**
+```json
+{
+  "listId": "listId1",
+  "owner": "ownerUsername",
+  "sharedWith": ["user1", "user2"]
+}
+```
+
+**Example:**
+```javascript
+fetch("http://localhost:8080/api/lists/listId1/shared", {
+    headers: {
+        "Authorization": "Bearer YOUR_TOKEN_HERE"
+    }
+})
+.then(res => res.json())
+.then(console.log)
+.catch(err => console.error("Error:", err));
+```
+
+### Remove User from Shared List
+Remove a user's access to a shared list. Only the list owner can do this.
+
+**Endpoint:**  
+DELETE /api/lists/{listId}/share/{username}
+
+**Headers:**  
+Authorization: Bearer {token}
+
+**Example:**
+```javascript
+fetch("http://localhost:8080/api/lists/listId1/share/targetuser", {
+    method: "DELETE",
+    headers: {
+        "Authorization": "Bearer YOUR_TOKEN_HERE"
+    }
+})
+.then(res => res.text())
+.then(console.log)
+.catch(err => console.error("Error:", err));
+```
+
+### Get Accessible Lists
+Get all lists the user can access (both owned and shared with them).
+
+**Endpoint:**  
+GET /api/lists/accessible
+
+**Headers:**  
+Authorization: Bearer {token}
+
+**Response:**
+```json
+{
+  "owned": [ /* array of lists owned by user */ ],
+  "shared": [ /* array of lists shared with user */ ]
+}
+```
+
+**Example:**
+```javascript
+fetch("http://localhost:8080/api/lists/accessible", {
+    headers: {
+        "Authorization": "Bearer YOUR_TOKEN_HERE"
+    }
+})
+.then(res => res.json())
+.then(console.log)
+.catch(err => console.error("Error:", err));
+```
