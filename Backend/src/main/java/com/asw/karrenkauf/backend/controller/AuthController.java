@@ -11,18 +11,24 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 @RestController
 @RequestMapping("/api")
 public class AuthController {
+	
+	// BCrypt-PasswordEncoder erzeugen
+    private PasswordEncoder encoder = new BCryptPasswordEncoder();
 
     private final JWTUtil jwtUtil;
-    private final TokenRepository tokenRepo;
-    private final UserRepository userRepo;
+    protected static TokenRepository tokenRepo;
+    protected static UserRepository userRepo;
 
     public AuthController(JWTUtil jwtUtil, TokenRepository tokenRepo, UserRepository userRepo) {
         this.jwtUtil = jwtUtil;
-        this.tokenRepo = tokenRepo;
-        this.userRepo = userRepo;
+        AuthController.tokenRepo = tokenRepo;
+        AuthController.userRepo = userRepo;
     }
     
     @PostMapping("/user")
@@ -31,9 +37,12 @@ public class AuthController {
             return "❌ Username already exists. Pick a different one.";
         }
     	
+        String hashedPassword = this.encoder.encode(password);
+
         String id = UUID.randomUUID().toString();
-        User u = new User(id, password, username);
+        User u = new User(id, hashedPassword, username); // Passwort jetzt gehashed
         userRepo.save(u);
+
         return "Created user " + username + " with id " + id;
     }
 
@@ -59,7 +68,10 @@ public class AuthController {
 	    if (userOpt.isEmpty()) return "❌ User does not exist";
 	
 	    User user = userOpt.get();
-	    if (!user.getUserPassword().equals(password)) {
+	    PasswordEncoder encoder = new BCryptPasswordEncoder();
+	    System.out.println(user.getUserPassword());
+	    System.out.println(encoder.encode(password));
+	    if (!encoder.matches(password, user.getUserPassword())) {
 	        return "❌ Invalid password";
 	    }
 	

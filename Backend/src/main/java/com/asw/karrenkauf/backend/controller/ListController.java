@@ -2,6 +2,7 @@ package com.asw.karrenkauf.backend.controller;
 
 import com.asw.karrenkauf.backend.model.ListData;
 import com.asw.karrenkauf.backend.model.ListItem;
+import com.asw.karrenkauf.backend.model.TokenEntry;
 import com.asw.karrenkauf.backend.repository.ListRepository;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,11 +18,33 @@ public class ListController {
         this.listRepo = listRepo;
     }
 
-    // Receive all lists from client
     @PostMapping("/lists/sync")
-    public String syncLists(@RequestBody Map<String, Map<String, Object>> payload) {
-        Map<String, Object> lists = payload.get("lists");
+    public String syncLists(
+            @RequestParam(required = false) String token,
+            @RequestBody Map<String, Map<String, Object>> payload
+    ) {
+        // --- TOKEN CHECK ---
+        String username = "unknown";
 
+        if (token != null && !token.isEmpty()) {
+            var entryOpt = AuthController.tokenRepo.findById(token);
+
+            if (entryOpt.isPresent()) {
+                TokenEntry entry = entryOpt.get();
+
+                if (!entry.isExpired()) {
+                    var userOpt = AuthController.userRepo.findById(entry.getUsername());
+                    username = userOpt.map(u -> u.getUserName()).orElse("unknown-user");
+                } else {
+                	return "Not synced, token has expired. Please login again.";
+                }
+            } else {
+            	return "Not synced, token invalid, please login.";
+            }
+        }
+
+        // --- LIST SYNC LOGIC ---
+        Map<String, Object> lists = payload.get("lists");
         if (lists == null) return "❌ No lists found";
 
         lists.forEach((id, rawList) -> {
@@ -58,7 +81,7 @@ public class ListController {
             listRepo.save(listData);
         });
 
-        return "👍 Lists synced!";
+        return "👍 Lists synced by: " + username;
     }
 
     // Get a list by ID
