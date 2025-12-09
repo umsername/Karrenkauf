@@ -181,6 +181,14 @@ public class ListController {
 
         ListData list = listOpt.get();
 
+        // Check if current user has access to this list (is owner or list is shared with them)
+        boolean isOwner = list.getOwner() != null && list.getOwner().equals(currentUsername);
+        boolean isSharedWithUser = listShareRepo.findByListIdAndSharedWithUsername(listId, currentUsername).isPresent();
+        
+        if (!isOwner && !isSharedWithUser) {
+            return ResponseEntity.status(404).body("❌ List not found");
+        }
+
         // Get all shares for this list
         List<ListShare> shares = listShareRepo.findByListId(listId);
         List<String> sharedWithUsernames = shares.stream()
