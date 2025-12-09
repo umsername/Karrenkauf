@@ -1,5 +1,21 @@
 # Connection Testing Strategy - Vue Frontend & Spring Boot Backend
 
+## ⚠️ WICHTIG: Nur für Entwicklung und Testing!
+
+**Diese Implementierung enthält Debug-Features und vereinfachte Security-Einstellungen:**
+- Detaillierte Logging-Ausgaben (inkl. Usernamen)
+- CORS wildcard (`*`) erlaubt alle Origins
+- System.out.println statt Logger
+- Test-Komponente im UI
+
+**Vor Production-Deployment:**
+1. Entferne oder kommentiere Debug-Logs aus
+2. Konfiguriere CORS mit spezifischen Origins (siehe SecurityConfig)
+3. Entferne ConnectionTester.vue Komponente
+4. Verwende einen richtigen Logger (SLF4J/Logback) statt System.out.println
+
+---
+
 ## Übersicht
 Diese Anleitung hilft dir, die Verbindung zwischen Vue Frontend (Port 5173) und Spring Boot Backend (Port 8080) zu testen, speziell für Login und Registrierung.
 
@@ -370,7 +386,71 @@ Wenn du die detaillierten Logs nicht mehr brauchst:
 
 ---
 
-## 9. Zusammenfassung
+## 10. Security Hinweise
+
+### ⚠️ Diese Implementierung ist NUR für Testing/Development
+
+Die folgenden Aspekte sollten vor einem Production-Deployment angepasst werden:
+
+#### 1. CORS Konfiguration
+**Aktuell (Development):**
+```java
+config.setAllowedOrigins(List.of("*")); // Erlaubt ALLE Origins
+```
+
+**Production (Empfohlen):**
+```java
+config.setAllowedOrigins(List.of(
+    "http://localhost:5173",      // Development
+    "https://your-domain.com"      // Production
+));
+```
+
+#### 2. Logging von sensiblen Informationen
+**Aktuell:** Usernamen und Token-Previews werden geloggt
+**Production:** 
+- Verwende einen richtigen Logger (SLF4J/Logback) statt System.out.println
+- Logge keine Usernamen bei Fehlern (User Enumeration Risk)
+- Logge keine Tokens oder Passwörter
+- Verwende User-IDs oder Hashes statt Usernamen
+
+Beispiel für Production-Logging:
+```java
+private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+
+// Statt:
+System.out.println("✅ [LOGIN] Login successful - Token generated for user: " + username);
+
+// Besser:
+logger.info("User login successful - ID: {}", userId);
+```
+
+#### 3. ConnectionTester Component
+**Vor Production:**
+- Entferne ConnectionTester.vue komplett
+- Entferne Import aus Home.vue
+
+#### 4. Test-Passwörter
+Die ConnectionTester-Komponente verwendet schwache Test-Passwörter. Dies ist OK für Testing, aber stelle sicher:
+- Test-User werden in Production gelöscht
+- Production-Passwörter folgen Sicherheitsrichtlinien
+
+#### 5. Response-Format
+Aktuell gibt der Backend String-Responses zurück (z.B. "👍 Login successful!\n\nTOKEN:\neyJ...").
+**Production-Empfehlung:** JSON-Responses:
+```json
+{
+  "success": true,
+  "token": "eyJ...",
+  "message": "Login successful"
+}
+```
+
+Dies macht das Token-Parsing im Frontend robuster.
+
+---
+
+## 11. Zusammenfassung
 
 ### Was wurde implementiert:
 

@@ -26,6 +26,8 @@ public class SecurityConfig {
 	        })
 	        .cors(cors -> cors.configurationSource(request -> {
 	            var config = new org.springframework.web.cors.CorsConfiguration();
+	            // WARNING: Using wildcard (*) allows any origin - only for development!
+	            // In production, replace with specific origins: List.of("http://localhost:5173", "https://your-domain.com")
 	            config.setAllowedOrigins(List.of("*"));
 	            config.setAllowedMethods(List.of("GET","POST","OPTIONS"));
 	            config.setAllowedHeaders(List.of("*"));
