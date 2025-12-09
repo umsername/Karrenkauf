@@ -114,6 +114,3 @@ fetch("http://localhost:8080/api/lists/listId1")
   .then(console.log)
   .catch(err => console.error("Error:", err));
 ```
-
-## TODO
-1. Actual password hashing 💀
