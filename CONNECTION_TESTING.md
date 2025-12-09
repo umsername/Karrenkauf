@@ -392,7 +392,24 @@ Wenn du die detaillierten Logs nicht mehr brauchst:
 
 Die folgenden Aspekte sollten vor einem Production-Deployment angepasst werden:
 
-#### 1. CORS Konfiguration
+#### 1. CSRF Protection (CRITICAL)
+**Aktuell (Development):**
+```java
+.csrf(csrf -> csrf.disable())
+```
+
+**Warum deaktiviert:** Für einfaches Testing mit CURL und Postman
+**Production (Empfohlen):**
+```java
+.csrf(csrf -> csrf
+    .csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse())
+)
+```
+
+Oder verwende Token-basierte Authentication (JWT) mit stateless Sessions (was bereits implementiert ist).
+Da JWT bereits verwendet wird, ist CSRF-Protection weniger kritisch, aber für Formulare sollte es aktiviert bleiben.
+
+#### 2. CORS Konfiguration
 **Aktuell (Development):**
 ```java
 config.setAllowedOrigins(List.of("*")); // Erlaubt ALLE Origins
@@ -406,7 +423,7 @@ config.setAllowedOrigins(List.of(
 ));
 ```
 
-#### 2. Logging von sensiblen Informationen
+#### 3. Logging von sensiblen Informationen
 **Aktuell:** Usernamen und Token-Previews werden geloggt
 **Production:** 
 - Verwende einen richtigen Logger (SLF4J/Logback) statt System.out.println
@@ -425,17 +442,17 @@ System.out.println("✅ [LOGIN] Login successful - Token generated for user: " +
 logger.info("User login successful - ID: {}", userId);
 ```
 
-#### 3. ConnectionTester Component
+#### 4. ConnectionTester Component
 **Vor Production:**
 - Entferne ConnectionTester.vue komplett
 - Entferne Import aus Home.vue
 
-#### 4. Test-Passwörter
+#### 5. Test-Passwörter
 Die ConnectionTester-Komponente verwendet schwache Test-Passwörter. Dies ist OK für Testing, aber stelle sicher:
 - Test-User werden in Production gelöscht
 - Production-Passwörter folgen Sicherheitsrichtlinien
 
-#### 5. Response-Format
+#### 6. Response-Format
 Aktuell gibt der Backend String-Responses zurück (z.B. "👍 Login successful!\n\nTOKEN:\neyJ...").
 **Production-Empfehlung:** JSON-Responses:
 ```json
