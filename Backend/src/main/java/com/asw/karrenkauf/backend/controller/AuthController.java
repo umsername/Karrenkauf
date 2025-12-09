@@ -57,4 +57,28 @@ public class AuthController {
 	
 	    return "👍 Login successful!\n\nTOKEN:\n" + token;
 	}
+
+	@PostMapping("/user")
+	public String createUser(@RequestParam String username, @RequestParam String password) {
+	    // Validate input
+	    if (username == null || username.trim().isEmpty()) {
+	        return "❌ Username cannot be empty";
+	    }
+	    if (password == null || password.trim().isEmpty()) {
+	        return "❌ Password cannot be empty";
+	    }
+
+	    // Check if username already exists
+	    Optional<User> existingUser = userRepo.findByUserName(username);
+	    if (existingUser.isPresent()) {
+	        return "❌ Username already exists";
+	    }
+
+	    // Create new user
+	    String userId = java.util.UUID.randomUUID().toString();
+	    User newUser = new User(userId, password, username);
+	    userRepo.save(newUser);
+
+	    return "👍 User registered successfully!";
+	}
 }
