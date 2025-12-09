@@ -4,7 +4,6 @@ import * as DS from '@/store/dataStore.js'
 import unitsData from '@/assets/data/units.json'
 import { syncLists } from '@/services/syncService.js'
 import { isAuthenticated } from '@/services/authService.js'
-import ConnectionTester from '@/components/ConnectionTester.vue'
 
 import {
   PencilSquareIcon,
@@ -423,9 +422,6 @@ const sortedItems = computed(() => {
        ÜBERSICHTSANSICHT
        ============================================================ -->
   <div v-else>
-    <!-- Connection Tester Component -->
-    <ConnectionTester />
-    
     <div class="overview-container">
       <!-- Sync-Nachricht anzeigen -->
       <div v-if="syncMessage" class="sync-message">
